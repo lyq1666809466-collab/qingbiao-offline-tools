@@ -1,0 +1,1939 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻表三合一离线工具（免费体验版）— 多表合并 · 拆表 · 财务对账</title>
+<style>
+  /* ===== 方案 A 语义 Design Tokens（默认浅色） ===== */
+  :root {
+    --ty-bg-page: #F4F5F7;
+    --ty-bg-surface: #FFFFFF;
+    --ty-bg-subtle: #F0F2F5;
+    --ty-bg-hover: #E8EBF0;
+    --ty-border: #E8EBF0;
+    --ty-border-strong: #D5DAE2;
+
+    --ty-text-primary: #14161A;
+    --ty-text-secondary: #5F6673;
+    --ty-text-tertiary: #8D95A3;
+
+    --ty-brand-bg: #181A1F;
+    --ty-brand-fg: #FFFFFF;
+    --ty-brand-hover: #2C3039;
+    --ty-brand-soft: #ECEEF2;
+
+    --ty-accent: #C83E32;
+    --ty-accent-soft: #FDF1F0;
+    --ty-danger-fg: #B93126;
+    --ty-danger-soft: #FEF2F2;
+    --ty-danger-border: #F5C7C3;
+
+    --ty-success-fg: #157A42;
+    --ty-success-soft: #E9F7EF;
+    --ty-success-border: #BFE6CE;
+    --ty-warn-fg: #B76E00;
+    --ty-warn-soft: #FEF6E7;
+    --ty-info-fg: #334155;
+    --ty-info-soft: #EEF1F6;
+
+    --ty-disabled-bg: #E6E9EE;
+    --ty-disabled-fg: #9CA3AF;
+
+    --chart-sales: #334155;
+    --chart-fin: #157A42;
+
+    --ty-shadow-card: 0 2px 8px rgba(15, 18, 25, .035), 0 6px 18px rgba(15, 18, 25, .025);
+    --ty-shadow-pop: 0 10px 28px rgba(15, 18, 25, .14);
+
+    --ty-radius-card: 16px;
+    --ty-radius-lg: 12px;
+    --ty-radius-md: 10px;
+    --ty-radius-sm: 8px;
+    --ty-radius-xs: 6px;
+  }
+
+  /* ===== 深色模式（跟随系统 prefers-color-scheme: dark） ===== */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ty-bg-page: #111820;
+      --ty-bg-surface: #1B2530;
+      --ty-bg-subtle: #263341;
+      --ty-bg-hover: #2F3E4E;
+      --ty-border: #32404F;
+      --ty-border-strong: #435466;
+
+      --ty-text-primary: #EAF0F6;
+      --ty-text-secondary: #A7B2BF;
+      --ty-text-tertiary: #748394;
+
+      --ty-brand-bg: #F0F4F8;
+      --ty-brand-fg: #111820;
+      --ty-brand-hover: #DCE4EC;
+      --ty-brand-soft: #283544;
+
+      --ty-accent: #FF8A7E;
+      --ty-accent-soft: #3A2528;
+      --ty-danger-fg: #FF968E;
+      --ty-danger-soft: #3B2428;
+      --ty-danger-border: #5E343A;
+
+      --ty-success-fg: #7EE2A8;
+      --ty-success-soft: #1A3829;
+      --ty-success-border: #28563E;
+      --ty-warn-fg: #F7C96E;
+      --ty-warn-soft: #3B2F18;
+      --ty-info-fg: #B8C7D9;
+      --ty-info-soft: #273444;
+
+      --ty-disabled-bg: #232F3B;
+      --ty-disabled-fg: #637282;
+
+      --chart-sales: #94A3B8;
+      --chart-fin: #7EE2A8;
+
+      --ty-shadow-card: none;
+      --ty-shadow-pop: 0 12px 32px rgba(0, 0, 0, .55);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 20px 16px 32px;
+    font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--ty-bg-page); color: var(--ty-text-primary);
+    font-size: 14px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  .ico { width: 16px; height: 16px; flex-shrink: 0; vertical-align: -2px; }
+  .ico-sm { width: 14px; height: 14px; }
+  .ico-lg { width: 22px; height: 22px; color: var(--ty-text-secondary); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* 顶部克制工具栏（告别笨重深蓝通栏色块） */
+  .topbar {
+    background: var(--ty-bg-surface);
+    border: 1px solid var(--ty-border);
+    border-radius: var(--ty-radius-card);
+    box-shadow: var(--ty-shadow-card);
+    padding: 16px 20px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .brand-left { display: flex; flex-direction: column; gap: 4px; }
+  .brand-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .brand-mark {
+    width: 30px; height: 30px; border-radius: var(--ty-radius-sm);
+    background: var(--ty-brand-bg); color: var(--ty-brand-fg);
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .topbar h1 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  .ed-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: var(--ty-radius-xs);
+    font-size: 12px; font-weight: 500;
+    background: var(--ty-brand-soft); color: var(--ty-text-secondary);
+  }
+  .ed-pill.pro { background: var(--ty-success-soft); color: var(--ty-success-fg); }
+  .topbar .sub { margin: 0; font-size: 12.5px; color: var(--ty-text-secondary); }
+
+  /* 分段式主导航（与顶栏呼应，轻点即切） */
+  .nav-tabs {
+    display: inline-flex; gap: 4px; padding: 4px;
+    background: var(--ty-bg-subtle); border: 1px solid var(--ty-border);
+    border-radius: var(--ty-radius-lg);
+  }
+  .nav-tab {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: var(--ty-radius-sm);
+    border: none; background: transparent;
+    font-size: 13.5px; font-weight: 500; color: var(--ty-text-secondary);
+    cursor: pointer; transition: background-color .16s ease, color .16s ease, transform .12s ease;
+  }
+  .nav-tab:hover { color: var(--ty-text-primary); }
+  .nav-tab.active {
+    background: var(--ty-brand-bg); color: var(--ty-brand-fg); font-weight: 600;
+  }
+  .nav-tab:active { transform: scale(0.98); }
+
+  /* 常驻克制边界提示条（真实限制直显，不喧宾夺主） */
+  .boundary-strip {
+    margin-top: 12px; padding: 9px 14px;
+    background: var(--ty-danger-soft); border: 1px solid var(--ty-danger-border);
+    border-radius: var(--ty-radius-md);
+    font-size: 12.5px; color: var(--ty-danger-fg);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: nowrap;
+  }
+  .boundary-strip-left { display: inline-flex; align-items: flex-start; gap: 8px; flex-wrap: nowrap; line-height: 1.45; }
+  .boundary-strip-left .ico { margin-top: 2px; }
+
+  .compat-banner {
+    display: none; margin-top: 12px; padding: 10px 14px;
+    background: var(--ty-danger-soft); border: 1px solid var(--ty-danger-border);
+    border-radius: var(--ty-radius-md); color: var(--ty-danger-fg); font-size: 13px;
+  }
+
+  .free-cta {
+    margin-top: 12px; padding: 10px 14px;
+    background: var(--ty-bg-surface); border: 1px solid var(--ty-border-strong);
+    border-radius: var(--ty-radius-md);
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    font-size: 13px; color: var(--ty-text-primary);
+  }
+  .cta-btn {
+    background: var(--ty-brand-bg); color: var(--ty-brand-fg);
+    text-decoration: none; padding: 7px 14px; border-radius: var(--ty-radius-sm);
+    font-weight: 600; font-size: 13px; white-space: nowrap;
+    transition: background-color .15s ease, transform .12s ease;
+  }
+  .cta-btn:hover { background: var(--ty-brand-hover); }
+  .cta-btn:active { transform: scale(0.98); }
+
+  /* 问号气泡 Tooltip（按规范收纳补充说明） */
+  .tip-wrap { position: relative; display: inline-flex; align-items: center; vertical-align: middle; }
+  .tip-btn {
+    width: 22px; height: 22px; padding: 0; border: none; border-radius: 999px;
+    background: transparent; color: var(--ty-text-tertiary);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .tip-btn:hover { color: var(--ty-text-primary); background: var(--ty-bg-subtle); }
+  .tip-pop {
+    display: none; position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%);
+    width: 280px; max-width: min(280px, 84vw); padding: 10px 12px; z-index: 40;
+    background: var(--ty-bg-surface); color: var(--ty-text-primary);
+    border: 1px solid var(--ty-border-strong); border-radius: var(--ty-radius-md);
+    box-shadow: var(--ty-shadow-pop); font-size: 12px; font-weight: 400; line-height: 1.55; text-align: left;
+  }
+  .tip-wrap.open .tip-pop { display: block; }
+  @media (max-width: 640px) {
+    .tip-pop { left: auto; right: 0; transform: none; }
+  }
+
+  .panel { display: none; margin-top: 14px; }
+  .panel.active { display: block; }
+
+  .card {
+    background: var(--ty-bg-surface);
+    border: 1px solid var(--ty-border);
+    border-radius: var(--ty-radius-card);
+    box-shadow: var(--ty-shadow-card);
+    padding: 16px 18px; margin-bottom: 12px;
+  }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    margin: 0 0 12px 0;
+  }
+  .card h2 {
+    margin: 0; font-size: 15px; font-weight: 600; color: var(--ty-text-primary);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .dropzone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; border: 1.5px dashed var(--ty-border-strong);
+    border-radius: var(--ty-radius-lg); padding: 20px 16px;
+    text-align: center; background: var(--ty-bg-subtle); cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .dropzone:hover, .dropzone.over { border-color: var(--ty-text-primary); background: var(--ty-bg-hover); }
+  .dropzone input { display: none; }
+  .drop-title { font-weight: 600; font-size: 14px; color: var(--ty-text-primary); }
+  .drop-sub { font-size: 12px; color: var(--ty-text-secondary); }
+
+  .file-list { margin: 8px 0 0 0; padding: 0; list-style: none; font-size: 12.5px; }
+  .file-list li {
+    padding: 6px 10px; background: var(--ty-bg-subtle); border-radius: var(--ty-radius-sm);
+    margin-top: 6px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .fname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ty-text-primary); font-weight: 500; }
+  .fmeta { display: inline-flex; align-items: center; gap: 8px; color: var(--ty-text-secondary); flex-shrink: 0; font-size: 12px; }
+  .chip-del {
+    width: 22px; height: 22px; padding: 0; border: none; border-radius: var(--ty-radius-xs);
+    background: transparent; color: var(--ty-text-tertiary); font-size: 16px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .chip-del:hover { background: var(--ty-danger-soft); color: var(--ty-danger-fg); }
+
+  .opts-row {
+    display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px;
+    font-size: 13px; color: var(--ty-text-secondary); align-items: center;
+  }
+  .opts-row label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .opts-row input[type="checkbox"] { accent-color: var(--ty-brand-bg); width: 15px; height: 15px; cursor: pointer; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+    margin-top: 12px;
+  }
+  .btn-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  /* 方案 A 按钮阶梯（Primary 深炭黑 / Secondary 柔灰 / Outline / Success 柔和实态） */
+  button.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 36px; padding: 0 14px;
+    border: 1px solid var(--ty-border-strong); background: var(--ty-bg-surface); color: var(--ty-text-primary);
+    border-radius: var(--ty-radius-sm); font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  button.btn:hover:not(:disabled) { background: var(--ty-bg-subtle); }
+  button.btn:active:not(:disabled) { transform: scale(0.975); }
+  button.btn.primary {
+    background: var(--ty-brand-bg); color: var(--ty-brand-fg); border-color: var(--ty-brand-bg); font-weight: 600;
+  }
+  button.btn.primary:hover:not(:disabled) { background: var(--ty-brand-hover); border-color: var(--ty-brand-hover); }
+  button.btn.secondary {
+    background: var(--ty-brand-soft); color: var(--ty-text-primary); border-color: transparent;
+  }
+  button.btn.secondary:hover:not(:disabled) { background: var(--ty-bg-hover); }
+  button.btn.success {
+    background: var(--ty-success-soft); color: var(--ty-success-fg); border-color: var(--ty-success-border); font-weight: 600;
+  }
+  button.btn.success:hover:not(:disabled) { filter: brightness(0.96); }
+  button.btn:disabled {
+    background: var(--ty-disabled-bg); color: var(--ty-disabled-fg); border-color: transparent;
+    cursor: not-allowed; opacity: 1;
+  }
+
+  select, input.search-input {
+    height: 36px; padding: 0 10px;
+    border: 1px solid var(--ty-border-strong); border-radius: var(--ty-radius-md);
+    font-size: 13px; background: var(--ty-bg-surface); color: var(--ty-text-primary);
+    outline: none;
+  }
+  select:focus, input.search-input:focus { border-color: var(--ty-text-primary); }
+
+  /* KPI 指标行：紧凑高密度 + 等宽数字 */
+  .kpis-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+  .kpis-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 12px; }
+  @media (max-width: 900px) { .kpis-4 { grid-template-columns: repeat(2, 1fr); } .kpis-6 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .kpis-6 { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: var(--ty-bg-surface); border: 1px solid var(--ty-border);
+    border-radius: var(--ty-radius-lg); box-shadow: var(--ty-shadow-card);
+    padding: 12px 14px;
+  }
+  .kpi .label { font-size: 12px; color: var(--ty-text-secondary); }
+  .kpi .val { font-size: 20px; font-weight: 600; margin-top: 3px; font-variant-numeric: tabular-nums; color: var(--ty-text-primary); }
+  .kpi.ok .val { color: var(--ty-success-fg); }
+  .kpi.warn .val { color: var(--ty-warn-fg); }
+  .kpi.err .val { color: var(--ty-danger-fg); }
+
+  .table-wrap {
+    overflow-x: auto; max-height: 380px;
+    border: 1px solid var(--ty-border); border-radius: var(--ty-radius-md);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th, td {
+    padding: 9px 11px; border-bottom: 1px solid var(--ty-border);
+    text-align: left; white-space: nowrap;
+  }
+  th {
+    background: var(--ty-bg-subtle); position: sticky; top: 0;
+    font-weight: 600; color: var(--ty-text-secondary); z-index: 1;
+  }
+  tbody tr:hover { background: var(--ty-bg-subtle); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.empty-cell { text-align: center; color: var(--ty-text-tertiary); padding: 24px; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; padding: 2px 6px; border-radius: var(--ty-radius-xs);
+    background: var(--ty-bg-subtle); color: var(--ty-text-primary);
+  }
+
+  .status-pill {
+    display: inline-block; padding: 2px 8px; border-radius: var(--ty-radius-xs);
+    font-size: 11.5px; font-weight: 600;
+  }
+  .st-ok { background: var(--ty-success-soft); color: var(--ty-success-fg); }
+  .st-warn { background: var(--ty-warn-soft); color: var(--ty-warn-fg); }
+  .st-err { background: var(--ty-danger-soft); color: var(--ty-danger-fg); }
+  .st-info { background: var(--ty-info-soft); color: var(--ty-info-fg); }
+
+  .filter-bar {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; align-items: center;
+  }
+  .ftab {
+    height: 30px; padding: 0 11px; border-radius: var(--ty-radius-sm);
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--ty-border); background: var(--ty-bg-surface); color: var(--ty-text-secondary);
+    cursor: pointer; transition: background-color .14s ease, color .14s ease;
+  }
+  .ftab:hover { color: var(--ty-text-primary); background: var(--ty-bg-subtle); }
+  .ftab.active { background: var(--ty-brand-bg); color: var(--ty-brand-fg); border-color: var(--ty-brand-bg); }
+
+  .search-box {
+    margin-left: auto; position: relative; display: inline-flex; align-items: center; min-width: 200px;
+  }
+  .search-box .ico-search { position: absolute; left: 10px; color: var(--ty-text-tertiary); pointer-events: none; display: inline-flex; }
+  .search-box input.search-input { width: 100%; height: 32px; padding-left: 32px; padding-right: 28px; }
+  .search-clear {
+    display: none; position: absolute; right: 6px; width: 20px; height: 20px; padding: 0; border: none;
+    background: transparent; color: var(--ty-text-tertiary); font-size: 15px; cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+  .search-clear:hover { color: var(--ty-text-primary); }
+
+  .map-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 820px) { .map-grid { grid-template-columns: repeat(2, 1fr); } }
+  .map-item { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ty-text-secondary); }
+
+  .msg-bar { font-size: 12.5px; color: var(--ty-text-secondary); font-variant-numeric: tabular-nums; }
+  .msg-bar.err { color: var(--ty-danger-fg); font-weight: 600; }
+  .msg-bar.ok { color: var(--ty-success-fg); font-weight: 600; }
+
+  .bal-bar {
+    margin-top: 10px; padding: 9px 12px;
+    background: var(--ty-success-soft); border: 1px solid var(--ty-success-border);
+    border-radius: var(--ty-radius-md); font-size: 12.5px; color: var(--ty-success-fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .svg-num { font-variant-numeric: tabular-nums; }
+
+  .footer-note {
+    margin-top: 16px; text-align: center; font-size: 12px; color: var(--ty-text-tertiary);
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 12px 10px 24px; }
+    .topbar { padding: 14px; }
+    .nav-tabs { width: 100%; }
+    .nav-tab { flex: 1; justify-content: center; padding: 8px 8px; font-size: 12.5px; }
+    .search-box { margin-left: 0; width: 100%; margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand-left">
+      <div class="brand-row">
+        <span class="brand-mark"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <h1>离线表格三合一神器</h1>
+        <span class="ed-pill ">免费体验版 · 导出限前 20 行</span>
+      </div>
+      <p class="sub">断网本地运行 · 零云端上传 · 免装 Python 与 WPS 宏</p>
+    </div>
+    <nav class="nav-tabs" role="tablist">
+      <button type="button" class="nav-tab active" data-panel="panelMerge"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="8.5" y="14" width="7" height="6" rx="1.5"/><path d="M6.5 11v1.5a1.5 1.5 0 0 0 1.5 1.5h8a1.5 1.5 0 0 0 1.5-1.5V11"/><path d="M12 12.5V14"/></svg><span>多表合并</span></button>
+      <button type="button" class="nav-tab" data-panel="panelSplit"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="3" width="7" height="6" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M12 9v2.5"/><path d="M6.5 14v-1a1.5 1.5 0 0 1 1.5-1.5h8a1.5 1.5 0 0 1 1.5 1.5v1"/></svg><span>按列拆表</span></button>
+      <button type="button" class="nav-tab" data-panel="panelRecon"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h10"/><path d="M4 17h7"/><path d="m15 16 2 2 4-4"/></svg><span>财务对账</span></button>
+    </nav>
+  </header>
+
+  <div id="compatBanner" class="compat-banner">当前浏览器不支持原生 <code>DecompressionStream</code>（需 Chrome/Edge 103+、Firefox 113+ 或 Safari 16.4+）。请改用新版浏览器打开，或先将表格另存为 <code>.csv</code> 导入。</div>
+
+  <div class="boundary-strip">
+    <span class="boundary-strip-left"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>适用边界：仅支持标准 <strong>.xlsx / .csv</strong>（老式 .xls 或加密文件请先另存为 .xlsx）· 需新版 Chrome/Edge/Safari</span></span>
+    <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="help"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.1-2.4 3.4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><span class="tip-pop">免费体验版开放 100% 合并、拆分、对账与图表预览，仅导出文件限前 20 行。建议先用您的真实表格测试完全顺手后再购买完整版。</span></span>
+  </div>
+  
+  <div class="free-cta">
+    <span>免费体验版：全功能预览已解锁，导出限前 20 行。确认您电脑可用后升级完整买断版（含全量工具 + 旗舰兼容模板 + 排错指南）：</span>
+    <a class="cta-btn" id="upgradeBtn" href="https://ifdian.net/a/qingbiaotool" target="_blank" rel="noopener">获取完整买断版</a>
+  </div>
+
+  <!-- ================= PANEL 1: 多表一键合并 ================= -->
+  <section class="panel active" id="panelMerge">
+    <div class="card">
+      <div class="card-head">
+        <h2><span>导入多份表格</span><span class="tip-wrap"><button type="button" class="tip-btn" aria-label="help"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.1-2.4 3.4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><span class="tip-pop">支持一次拖入多份 .xlsx 或 .csv（自动兼容 UTF-8 / GBK 编码）；各表列顺序不同也会按表头自动对齐，同表重名列自动编号防覆盖。</span></span></h2>
+        <button type="button" class="btn secondary" id="mClearBtn" style="display:none;height:30px;padding:0 10px;font-size:12px;"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span>清空</span></button>
+      </div>
+      <label class="dropzone" id="mDrop">
+        <input type="file" id="mInput" multiple accept=".xlsx,.csv,.xls">
+        <svg class="ico ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="drop-title">点击或拖入多份 .xlsx / .csv 表格</span>
+        <span class="drop-sub">支持多 Sheet 读取 · 自动对齐乱序表头</span>
+      </label>
+      <ul class="file-list" id="mFileList"></ul>
+      <div class="opts-row">
+        <label><input type="checkbox" id="mAllSheets" checked> 合并全部工作表</label>
+        <label><input type="checkbox" id="mAddSource" checked> 附带来源文件/表列</label>
+        <label><input type="checkbox" id="mTrim" checked> 去空格与空行</label>
+        <label><input type="checkbox" id="mDedup"> 完全相同行去重</label>
+      </div>
+      <div class="toolbar">
+        <div class="btn-group">
+          <button type="button" class="btn primary" id="mRunBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg><span>开始合并</span></button>
+          <button type="button" class="btn secondary" id="mDemoBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg><span>载入示例</span></button>
+          <button type="button" class="btn success" id="mExportXlsxBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>导出 .xlsx</span></button>
+          <button type="button" class="btn" id="mExportCsvBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>导出 .csv</span></button>
+        </div>
+        <span class="msg-bar" id="mStatus">就绪</span>
+      </div>
+    </div>
+
+    <div class="kpis-4">
+      <div class="kpi"><div class="label">读取工作表</div><div class="val" id="mKpiFiles">0</div></div>
+      <div class="kpi ok"><div class="label">合并有效行</div><div class="val" id="mKpiRows">0</div></div>
+      <div class="kpi"><div class="label">对齐总列数</div><div class="val" id="mKpiCols">0</div></div>
+      <div class="kpi warn"><div class="label">清理空/重行</div><div class="val" id="mKpiSkipped">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead id="mThead"></thead>
+          <tbody id="mTbody"><tr><td class="empty-cell">—</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PANEL 2: 一表按列拆多表 ================= -->
+  <section class="panel" id="panelSplit">
+    <div class="card">
+      <div class="card-head">
+        <h2><span>导入待拆分总表</span><span class="tip-wrap"><button type="button" class="tip-btn" aria-label="help"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.1-2.4 3.4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><span class="tip-pop">按指定列自动拆成多份独立 .xlsx（打包 .zip）或单文件多 Sheet；自动清洗 / \ : * ? 等 Windows 非法字符、保留字 CON 与超 31 字表名。</span></span></h2>
+      </div>
+      <label class="dropzone" id="sDrop">
+        <input type="file" id="sInput" accept=".xlsx,.csv,.xls">
+        <svg class="ico ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="drop-title">点击或拖入 1 份总表（.xlsx / .csv）</span>
+        <span class="drop-sub">自动安全清洗文件名与 Sheet 名</span>
+      </label>
+      <ul class="file-list" id="sFileList"></ul>
+      <div class="opts-row">
+        <label>工作表 <select id="sSheetSelect"></select></label>
+        <label>拆分依据列 <select id="sColSelect"></select></label>
+      </div>
+      <div class="toolbar">
+        <div class="btn-group">
+          <button type="button" class="btn secondary" id="sDemoBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg><span>载入脏数据示例</span></button>
+          <button type="button" class="btn primary" id="sExportZipBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>打包多文件 .zip</span></button>
+          <button type="button" class="btn success" id="sExportMultiBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>导出多 Sheet .xlsx</span></button>
+        </div>
+        <span class="msg-bar" id="sStatus">就绪</span>
+      </div>
+    </div>
+
+    <div class="kpis-4">
+      <div class="kpi"><div class="label">总表行数</div><div class="val" id="sKpiTotal">0</div></div>
+      <div class="kpi ok"><div class="label">拆分分组</div><div class="val" id="sKpiGroups">0</div></div>
+      <div class="kpi warn"><div class="label">空值归类</div><div class="val" id="sKpiEmpty">0</div></div>
+      <div class="kpi"><div class="label">最大分组</div><div class="val" id="sKpiMax">0</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2><span>分组与安全文件名校验</span></h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>原始分组值</th><th class="num">行数</th><th>导出安全文件名</th><th>安全 Sheet 名 (≤31字)</th></tr>
+          </thead>
+          <tbody id="sPreviewBody"><tr><td colspan="4" class="empty-cell">—</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PANEL 3: 财务双向对账 ================= -->
+  <section class="panel" id="panelRecon">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h2><span>销售明细表（可多选）</span></h2></div>
+        <label class="dropzone" id="rSalesDrop">
+          <input type="file" id="rSalesInput" multiple accept=".xlsx,.csv,.xls">
+          <svg class="ico ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="drop-title">点击或拖入销售表</span>
+          <span class="drop-sub">支持多份乱序表头自动对齐</span>
+        </label>
+        <ul class="file-list" id="rSalesFileList"></ul>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2><span>财务收款流水表（1 份）</span></h2></div>
+        <label class="dropzone" id="rFinDrop">
+          <input type="file" id="rFinInput" accept=".xlsx,.csv,.xls">
+          <svg class="ico ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span class="drop-title">点击或拖入实收流水</span>
+          <span class="drop-sub">银行 / 支付宝 / 平台账单</span>
+        </label>
+        <ul class="file-list" id="rFinFileList"></ul>
+      </div>
+    </div>
+
+    <div class="card" id="rMapCard" style="display:none;">
+      <div class="card-head"><h2><span>字段映射</span><span class="tip-wrap"><button type="button" class="tip-btn" aria-label="help"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.1-2.4 3.4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><span class="tip-pop">已自动识别常见中英文表头；若多份销售表列顺序不同，计算时会自动按列名动态匹配，无需手动调整每张表。</span></span></h2></div>
+      <div class="map-grid">
+        <div class="map-item"><label>销售单号</label><select id="mapSId"></select></div>
+        <div class="map-item"><label>应收金额</label><select id="mapSAmt"></select></div>
+        <div class="map-item"><label>渠道/门店</label><select id="mapSCh"></select></div>
+        <div class="map-item"><label>销售日期</label><select id="mapSDate"></select></div>
+        <div class="map-item"><label>关联单号</label><select id="mapFId"></select></div>
+        <div class="map-item"><label>实收金额</label><select id="mapFAmt"></select></div>
+        <div class="map-item"><label>收款渠道</label><select id="mapFCh"></select></div>
+        <div class="map-item"><label>到账日期</label><select id="mapFDate"></select></div>
+      </div>
+    </div>
+
+    <div class="toolbar" style="margin-bottom:12px;">
+      <div class="btn-group">
+        <button type="button" class="btn primary" id="rRunBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg><span>执行双向对账</span></button>
+        <button type="button" class="btn secondary" id="rDemoBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg><span>载入示例对账</span></button>
+        <button type="button" class="btn success" id="rExportXlsxBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>导出 3-Sheet 报告 (.xlsx)</span></button>
+        <button type="button" class="btn" id="rExportCsvBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>导出明细 (.csv)</span></button>
+      </div>
+      <span class="msg-bar" id="rStatus">就绪</span>
+    </div>
+
+    <div class="kpis-6">
+      <div class="kpi"><div class="label">销售笔数</div><div class="val" id="rkCount">0</div></div>
+      <div class="kpi"><div class="label">应收总额</div><div class="val" id="rkSAmt">0.00</div></div>
+      <div class="kpi"><div class="label">实收总额</div><div class="val" id="rkFAmt">0.00</div></div>
+      <div class="kpi ok"><div class="label">正常平账</div><div class="val" id="rkOk">0</div></div>
+      <div class="kpi warn"><div class="label">金额差异</div><div class="val" id="rkDiff">0</div></div>
+      <div class="kpi err"><div class="label">漏款/漏单/重复</div><div class="val" id="rkAlert">0</div></div>
+    </div>
+
+    <div class="card" id="rChartCard" style="display:none;">
+      <div class="card-head"><h2><span>分渠道应收与实收对比</span></h2></div>
+      <div id="rSvgChart"></div>
+      <div class="bal-bar" id="rBalanceBar"></div>
+    </div>
+
+    <div class="card">
+      <div class="filter-bar" id="rFilterTabs">
+        <button type="button" class="ftab active" data-f="ALL">全部</button>
+        <button type="button" class="ftab" data-f="ALERT">仅异常</button>
+        <button type="button" class="ftab" data-f="有单无款">有单无款</button>
+        <button type="button" class="ftab" data-f="金额差异">金额差异</button>
+        <button type="button" class="ftab" data-f="重复单号">重复单号</button>
+        <button type="button" class="ftab" data-f="有款无单">有款无单</button>
+        <button type="button" class="ftab" data-f="正常平账">正常平账</button>
+        <div class="search-box">
+          <span class="ico-search"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input class="search-input" id="rSearchBox" placeholder="搜索单号、渠道或备注">
+          <button type="button" class="search-clear" id="rSearchClear" aria-label="clear">&times;</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>清洗后单号</th><th>渠道/来源</th><th>日期</th><th>客户/备注</th>
+              <th class="num">应收金额</th><th class="num">财务实收</th><th class="num">差额</th><th>状态</th>
+            </tr>
+          </thead>
+          <tbody id="rBody"><tr><td colspan="8" class="empty-cell">—</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer-note"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>纯本地单文件运行 · 无联网通信与第三方脚本 · 关闭页面即释放全部内存数据</span></footer>
+</div>
+
+<script>
+const STR = {"lang":"zh","xlsErrorMsg":"检测到老式 .xls（97-2003）、加密保护或非标准格式文件。请用 Excel / WPS 打开后「另存为 .xlsx」再拖入。","emptyFileMsg":"未在文件中检测到有效数据行，请检查是否为空白表格。","noFilesMsg":"请先拖入表格文件，或点击「载入示例」体验。","emptyGroupName":"未分类_空值","sourceFileCol":"来源文件","sourceSheetCol":"来源工作表","statusReady":"就绪","stOk":"正常平账","stDiff":"金额差异","stMissFin":"有单无款","stDup":"重复单号","stMissSales":"有款无单","balPrefix":"总账实收勾稽平衡：","legendSales":"应收金额","legendFin":"已匹配实收","exportMergedName":"多表合并总表","exportSplitZipName":"按列拆分表格包","exportSplitMultiName":"按列拆分多Sheet工作簿","exportReconName":"财务双向对账报告","sheetSummary":"对账总览","sheetAlert":"异常差异清单","sheetAll":"全量合并明细","sheetMerged":"合并总表","noOption":"（不使用）","exportSummaryLabels":{"head":["核对指标","数值"],"salesCount":"合并销售笔数","totalSalesAmt":"销售应收总额","totalFinAmt":"财务实收总额","okCount":"正常平账笔数","diffCount":"金额差异笔数","missFinCount":"有单无款笔数","dupCount":"重复单号笔数","dupHeldFinAmt":"重复单号挂起实收金额","missSalesCount":"有款无单笔数","missSalesFinAmt":"有款无单实收金额","uniqueMatchedFinAmt":"唯一匹配实收金额","balanceGap":"总账实收勾稽差额"},"exportDetailHeaders":["清洗后订单号","渠道来源","日期","客户备注","应收金额","财务实收","差额","对账状态"]};
+const formatBalanceText = (u, d, m, tot, gap) => `已匹配实收 <strong>${u}</strong> + 重复挂起实收 <strong>${d}</strong> + 有款无单 <strong>${m}</strong> = <strong>${tot}</strong>（差额 <strong>${gap} 元</strong>）`;
+
+function applyExportEditionCap(headerRow, dataRows) {
+  const MAX_FREE_ROWS = 20;
+  const sliced = dataRows.slice(0, MAX_FREE_ROWS);
+  const out = [headerRow, ...sliced];
+  if (dataRows.length > MAX_FREE_ROWS) {
+    const notice = new Array(headerRow.length).fill('');
+    notice[0] = "【免费体验版提示】以上为前 20 行样本，完整买断版支持全量无限行导出";
+    out.push(notice);
+  }
+  return out;
+}
+function applySplitGroupCap(groups) {
+  const MAX_FREE_ROWS = 20;
+  return groups.map(g => ({
+    ...g,
+    rows: g.rows.slice(0, MAX_FREE_ROWS)
+  }));
+}
+const EXPORT_DONE_MSG = "已导出前 20 行样本（完整买断版无行数限制）";
+
+/* ============================================================================
+ * 离线表格三合一神器 v1.1 核心引擎（零外网依赖 · 7 项隐藏边界 Bug 深度根治）
+ * 1. OOXML (.xlsx) 多 Sheet 解析 + styles.xml 日期识别 + 15位以上长单号精度保真
+ * 2. XML 1.0 控制字符清洗（防 ERP 脏字符致 Excel 打开报损坏）
+ * 3. 多表合并：同名重复列名防覆盖、选项改动即时重算、支持追加与单删文件
+ * 4. 财务双向对账：多销售表按列名动态匹配（免疫乱序表头）、中英全本地化导出表头
+ * 5. 全局兼容浅色/深色系统主题（SVG 矢量图使用语义 CSS 变量自适应）
+ * ============================================================================ */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+
+function crc32(u8) {
+  let c = 0xffffffff;
+  for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function xmlEsc(s) {
+  return String(s ?? '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\uFFFE\uFFFF]/g, '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function colLetter(n) {
+  let s = '';
+  n += 1;
+  while (n > 0) {
+    const r = (n - 1) % 26;
+    s = String.fromCharCode(65 + r) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}
+
+function colRefToIndex(ref) {
+  const letters = ref.replace(/[0-9]/g, '');
+  let idx = 0;
+  for (let i = 0; i < letters.length; i++) idx = idx * 26 + (letters.charCodeAt(i) - 64);
+  return idx - 1;
+}
+
+function serialToIsoDate(num) {
+  const utcMs = Math.round((num - 25569) * 86400 * 1000);
+  const d = new Date(utcMs);
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function isOle2LegacyOrEncrypted(u8) {
+  return u8.length >= 8 && u8[0] === 0xD0 && u8[1] === 0xCF && u8[2] === 0x11 && u8[3] === 0xE0;
+}
+
+function preserveLongIdOrParseNum(raw) {
+  const s = String(raw ?? '').trim();
+  if (!s) return '';
+  // 保护 >=15 位长数字（订单号/银行卡号/身份证号）与前导零编码（如 00123），防止 JS Number 丢精度或吃掉前导零
+  if (/^0\d+$/.test(s)) return s;
+  if (/^-?\d{15,}$/.test(s)) return s;
+  const num = Number(s);
+  return Number.isFinite(num) ? num : s;
+}
+
+async function inflateRaw(u8) {
+  if (typeof DecompressionStream === 'undefined') {
+    throw new Error('DecompressionStream unsupported');
+  }
+  const ds = new DecompressionStream('deflate-raw');
+  const w = ds.writable.getWriter();
+  w.write(u8);
+  w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
+
+async function unzipXmlFiles(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  if (bytes.length < 22 || isOle2LegacyOrEncrypted(bytes)) throw new Error(STR.xlsErrorMsg);
+  const view = new DataView(arrayBuffer);
+  let eocd = -1;
+  for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65558); i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error(STR.xlsErrorMsg);
+
+  const cdCount = view.getUint16(eocd + 10, true);
+  let ptr = view.getUint32(eocd + 16, true);
+  const dec = new TextDecoder('utf-8');
+  const files = {};
+
+  for (let i = 0; i < cdCount; i++) {
+    if (ptr + 46 > bytes.length || view.getUint32(ptr, true) !== 0x02014b50) break;
+    const method = view.getUint16(ptr + 10, true);
+    const compSize = view.getUint32(ptr + 20, true);
+    const nameLen = view.getUint16(ptr + 28, true);
+    const extraLen = view.getUint16(ptr + 30, true);
+    const commentLen = view.getUint16(ptr + 32, true);
+    const localOffset = view.getUint32(ptr + 42, true);
+    const name = dec.decode(bytes.subarray(ptr + 46, ptr + 46 + nameLen));
+    ptr += 46 + nameLen + extraLen + commentLen;
+
+    if (localOffset + 30 > bytes.length) continue;
+    const lNameLen = view.getUint16(localOffset + 26, true);
+    const lExtraLen = view.getUint16(localOffset + 28, true);
+    const dataStart = localOffset + 30 + lNameLen + lExtraLen;
+    if (dataStart + compSize > bytes.length) continue;
+    const rawSlice = bytes.subarray(dataStart, dataStart + compSize);
+
+    if (name.endsWith('.xml') || name.endsWith('.rels')) {
+      const out = method === 0 ? rawSlice : (method === 8 ? await inflateRaw(rawSlice) : null);
+      if (out) files[name] = dec.decode(out);
+    }
+  }
+  return files;
+}
+
+function parseDateStyleIndices(stylesXml) {
+  const dateStyleSet = new Set();
+  if (!stylesXml) return dateStyleSet;
+  const doc = new DOMParser().parseFromString(stylesXml, 'application/xml');
+  const customFmtMap = new Map();
+  const numFmts = doc.getElementsByTagName('numFmt');
+  for (let i = 0; i < numFmts.length; i++) {
+    const id = parseInt(numFmts[i].getAttribute('numFmtId') || '-1', 10);
+    const code = (numFmts[i].getAttribute('formatCode') || '').toLowerCase().replace(/"[^"]*"/g, '');
+    if (id >= 0) customFmtMap.set(id, code);
+  }
+  const builtInDateIds = new Set([14, 15, 16, 17, 18, 19, 20, 21, 22, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 45, 46, 47, 50, 51, 52, 53, 54, 55, 56, 57, 58]);
+  const cellXfsEl = doc.getElementsByTagName('cellXfs')[0];
+  if (!cellXfsEl) return dateStyleSet;
+  const xfs = cellXfsEl.getElementsByTagName('xf');
+  for (let i = 0; i < xfs.length; i++) {
+    const numFmtId = parseInt(xfs[i].getAttribute('numFmtId') || '0', 10);
+    if (builtInDateIds.has(numFmtId)) {
+      dateStyleSet.add(i);
+    } else if (customFmtMap.has(numFmtId)) {
+      const code = customFmtMap.get(numFmtId);
+      if (/[ymd]/.test(code) && !/0\.00|#,#/.test(code)) dateStyleSet.add(i);
+    }
+  }
+  return dateStyleSet;
+}
+
+async function parseXlsxWorkbook(arrayBuffer) {
+  const files = await unzipXmlFiles(arrayBuffer);
+  const parser = new DOMParser();
+
+  const sharedStrings = [];
+  if (files['xl/sharedStrings.xml']) {
+    const ssDoc = parser.parseFromString(files['xl/sharedStrings.xml'], 'application/xml');
+    const sis = ssDoc.getElementsByTagName('si');
+    for (let i = 0; i < sis.length; i++) {
+      const ts = sis[i].getElementsByTagName('t');
+      let txt = '';
+      for (let j = 0; j < ts.length; j++) txt += ts[j].textContent || '';
+      sharedStrings.push(txt);
+    }
+  }
+
+  const dateStyleSet = parseDateStyleIndices(files['xl/styles.xml']);
+
+  const relMap = new Map();
+  if (files['xl/_rels/workbook.xml.rels']) {
+    const rDoc = parser.parseFromString(files['xl/_rels/workbook.xml.rels'], 'application/xml');
+    const rels = rDoc.getElementsByTagName('Relationship');
+    for (let i = 0; i < rels.length; i++) {
+      const id = rels[i].getAttribute('Id');
+      let tgt = (rels[i].getAttribute('Target') || '').replace(/^\/+/, '');
+      if (!tgt.startsWith('xl/')) tgt = 'xl/' + tgt;
+      relMap.set(id, tgt);
+    }
+  }
+
+  const sheetSpecs = [];
+  if (files['xl/workbook.xml']) {
+    const wbDoc = parser.parseFromString(files['xl/workbook.xml'], 'application/xml');
+    const sEls = wbDoc.getElementsByTagName('sheet');
+    for (let i = 0; i < sEls.length; i++) {
+      const name = sEls[i].getAttribute('name') || ('Sheet' + (i + 1));
+      const rId = sEls[i].getAttribute('r:id') || sEls[i].getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id');
+      const target = (rId && relMap.get(rId)) || ('xl/worksheets/sheet' + (i + 1) + '.xml');
+      if (files[target]) sheetSpecs.push({ name, path: target });
+    }
+  }
+  if (!sheetSpecs.length) {
+    Object.keys(files).filter(k => /^xl\/worksheets\/sheet\d+\.xml$/i.test(k)).sort().forEach((p, idx) => {
+      sheetSpecs.push({ name: 'Sheet' + (idx + 1), path: p });
+    });
+  }
+
+  const sheets = [];
+  for (const sp of sheetSpecs) {
+    const sDoc = parser.parseFromString(files[sp.path], 'application/xml');
+    const rowEls = sDoc.getElementsByTagName('row');
+    const matrix = [];
+    for (let i = 0; i < rowEls.length; i++) {
+      const cells = rowEls[i].getElementsByTagName('c');
+      const rowArr = [];
+      for (let j = 0; j < cells.length; j++) {
+        const c = cells[j];
+        const ref = c.getAttribute('r') || '';
+        const colIdx = ref ? colRefToIndex(ref) : j;
+        const t = c.getAttribute('t');
+        const sAttr = c.getAttribute('s');
+        const styleIdx = sAttr !== null ? parseInt(sAttr, 10) : -1;
+        let val = '';
+        if (t === 's') {
+          const vEl = c.getElementsByTagName('v')[0];
+          val = vEl ? (sharedStrings[parseInt(vEl.textContent, 10)] ?? '') : '';
+        } else if (t === 'inlineStr') {
+          const tEls = c.getElementsByTagName('t');
+          for (let k = 0; k < tEls.length; k++) val += tEls[k].textContent || '';
+        } else if (t === 'b') {
+          const vEl = c.getElementsByTagName('v')[0];
+          val = vEl && vEl.textContent === '1' ? 'TRUE' : 'FALSE';
+        } else {
+          const vEl = c.getElementsByTagName('v')[0];
+          const raw = vEl ? (vEl.textContent || '') : '';
+          if (raw !== '' && (!t || t === 'n') && styleIdx >= 0 && dateStyleSet.has(styleIdx)) {
+            const num = Number(raw);
+            val = (Number.isFinite(num) && num >= 1 && num <= 2958465) ? serialToIsoDate(num) : raw;
+          } else if (raw !== '' && (!t || t === 'n')) {
+            val = preserveLongIdOrParseNum(raw);
+          } else {
+            val = raw;
+          }
+        }
+        rowArr[colIdx] = val;
+      }
+      if (rowArr.some(v => String(v ?? '').trim() !== '')) matrix.push(rowArr);
+    }
+    if (matrix.length) sheets.push({ name: sp.name, rows: matrix });
+  }
+  return sheets;
+}
+
+function parseCsvWorkbook(arrayBuffer, filename) {
+  let text = '';
+  try { text = new TextDecoder('utf-8', { fatal: true }).decode(arrayBuffer); }
+  catch { text = new TextDecoder('gbk').decode(arrayBuffer); }
+  text = text.replace(/^\uFEFF/, '');
+  const rows = [];
+  let row = [], cell = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (ch === '"') inQ = false;
+      else cell += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',') { row.push(cell); cell = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); cell = '';
+        if (row.some(v => v.trim() !== '')) rows.push(row);
+        row = [];
+      } else cell += ch;
+    }
+  }
+  if (cell !== '' || row.length) {
+    row.push(cell);
+    if (row.some(v => v.trim() !== '')) rows.push(row);
+  }
+  if (!rows.length) return [];
+  return [{ name: filename.replace(/\.csv$/i, '').slice(0, 28) || 'CSV', rows }];
+}
+
+async function readAnySpreadsheet(file) {
+  const buf = await file.arrayBuffer();
+  const lower = file.name.toLowerCase();
+  if (lower.endsWith('.xls')) throw new Error(STR.xlsErrorMsg);
+  let sheets = [];
+  if (lower.endsWith('.xlsx')) sheets = await parseXlsxWorkbook(buf);
+  else if (lower.endsWith('.csv')) sheets = parseCsvWorkbook(buf, file.name);
+  else throw new Error(STR.xlsErrorMsg);
+  if (!sheets.length) throw new Error(STR.emptyFileMsg);
+  return sheets;
+}
+
+function makeBinaryZip(entries, mimeType) {
+  const enc = new TextEncoder();
+  const localParts = [];
+  const cdParts = [];
+  let offset = 0;
+
+  for (const [name, content] of entries) {
+    const nameB = enc.encode(name);
+    const dataB = content instanceof Uint8Array ? content : enc.encode(String(content));
+    const crc = crc32(dataB);
+
+    const lh = new ArrayBuffer(30);
+    const lv = new DataView(lh);
+    lv.setUint32(0, 0x04034b50, true);
+    lv.setUint16(4, 20, true);
+    lv.setUint16(6, 0x0800, true);
+    lv.setUint16(8, 0, true);
+    lv.setUint32(14, crc, true);
+    lv.setUint32(18, dataB.length, true);
+    lv.setUint32(22, dataB.length, true);
+    lv.setUint16(26, nameB.length, true);
+    localParts.push(new Uint8Array(lh), nameB, dataB);
+
+    const cd = new ArrayBuffer(46);
+    const cv = new DataView(cd);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
+    cv.setUint16(8, 0x0800, true);
+    cv.setUint16(10, 0, true);
+    cv.setUint32(16, crc, true);
+    cv.setUint32(20, dataB.length, true);
+    cv.setUint32(24, dataB.length, true);
+    cv.setUint16(28, nameB.length, true);
+    cv.setUint32(42, offset, true);
+    cdParts.push(new Uint8Array(cd), nameB);
+
+    offset += 30 + nameB.length + dataB.length;
+  }
+
+  const cdSize = cdParts.reduce((a, b) => a + b.length, 0);
+  const eocd = new ArrayBuffer(22);
+  const ev = new DataView(eocd);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, entries.length, true);
+  ev.setUint16(10, entries.length, true);
+  ev.setUint32(12, cdSize, true);
+  ev.setUint32(16, offset, true);
+
+  const totalLen = offset + cdSize + 22;
+  const out = new Uint8Array(totalLen);
+  let pos = 0;
+  for (const p of localParts) { out.set(p, pos); pos += p.length; }
+  for (const p of cdParts) { out.set(p, pos); pos += p.length; }
+  out.set(new Uint8Array(eocd), pos);
+  return new Blob([out], { type: mimeType });
+}
+
+function buildSheetXml(rows) {
+  let body = '';
+  for (let r = 0; r < rows.length; r++) {
+    let cells = '';
+    const row = rows[r] || [];
+    for (let c = 0; c < row.length; c++) {
+      const v = row[c];
+      if (v === '' || v === null || v === undefined) continue;
+      const ref = colLetter(c) + (r + 1);
+      if (typeof v === 'number' && Number.isFinite(v)) {
+        cells += '<c r="' + ref + '"><v>' + v + '</v></c>';
+      } else {
+        cells += '<c r="' + ref + '" t="inlineStr"><is><t>' + xmlEsc(v) + '</t></is></c>';
+      }
+    }
+    body += '<row r="' + (r + 1) + '">' + cells + '</row>';
+  }
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' + body + '</sheetData></worksheet>';
+}
+
+function sanitizeSheetName(raw, usedLowerSet) {
+  let s = String(raw ?? '').replace(/[\x00-\x1f\r\n\t:\\/?*\[\]]+/g, '_').replace(/^'+|'+$/g, '').trim();
+  if (!s) s = STR.emptyGroupName;
+  s = s.slice(0, 31);
+  let candidate = s;
+  let seq = 2;
+  while (usedLowerSet.has(candidate.toLowerCase())) {
+    const suffix = '_' + seq++;
+    candidate = s.slice(0, 31 - suffix.length) + suffix;
+  }
+  usedLowerSet.add(candidate.toLowerCase());
+  return candidate;
+}
+
+function sanitizeFileName(raw, usedLowerSet) {
+  const RESERVED = new Set(['con','prn','aux','nul','com1','com2','com3','com4','com5','com6','com7','com8','com9','lpt1','lpt2','lpt3','lpt4','lpt5','lpt6','lpt7','lpt8','lpt9']);
+  let s = String(raw ?? '')
+    .replace(/[\x00-\x1f\r\n\t/\\:*?"<>|]+/g, '_')
+    .replace(/^[.\s]+|[.\s]+$/g, '')
+    .replace(/_+/g, '_');
+  if (!s) s = STR.emptyGroupName;
+  if (RESERVED.has(s.toLowerCase())) s = '_' + s;
+  s = s.slice(0, 60);
+  let candidate = s;
+  let seq = 2;
+  while (usedLowerSet.has(candidate.toLowerCase())) {
+    const suffix = '_' + seq++;
+    candidate = s.slice(0, 60 - suffix.length) + suffix;
+  }
+  usedLowerSet.add(candidate.toLowerCase());
+  return candidate + '.xlsx';
+}
+
+function buildMultiSheetXlsxBytes(sheets) {
+  const usedSheets = new Set();
+  const entries = [];
+  const ctOverrides = [];
+  const wbSheets = [];
+  const wbRels = [];
+
+  sheets.forEach((sh, i) => {
+    const id = i + 1;
+    const safeName = sanitizeSheetName(sh.name, usedSheets);
+    entries.push(['xl/worksheets/sheet' + id + '.xml', buildSheetXml(sh.rows)]);
+    ctOverrides.push('<Override PartName="/xl/worksheets/sheet' + id + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>');
+    wbSheets.push('<sheet name="' + xmlEsc(safeName) + '" sheetId="' + id + '" r:id="rId' + id + '"/>');
+    wbRels.push('<Relationship Id="rId' + id + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + id + '.xml"/>');
+  });
+
+  entries.push(['[Content_Types].xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    + '<Default Extension="xml" ContentType="application/xml"/>'
+    + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+    + ctOverrides.join('') + '</Types>']);
+
+  entries.push(['_rels/.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+    + '</Relationships>']);
+
+  entries.push(['xl/workbook.xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    + '<sheets>' + wbSheets.join('') + '</sheets></workbook>']);
+
+  entries.push(['xl/_rels/workbook.xml.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + wbRels.join('') + '</Relationships>']);
+
+  return makeBinaryZip(entries, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 800);
+}
+
+function rowsToCsvBlob(rows) {
+  const csv = '\uFEFF' + rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  return new Blob([csv], { type: 'text/csv;charset=utf-8' });
+}
+
+function normalizeUniqueHeaders(row) {
+  const used = new Map();
+  return (row || []).map((h, ci) => {
+    const base = String(h ?? '').trim() || ('Col_' + (ci + 1));
+    const count = used.get(base) || 0;
+    used.set(base, count + 1);
+    return count === 0 ? base : (base + '_' + (count + 1));
+  });
+}
+
+function detectHeaderRowIndex(rows) {
+  const limit = Math.min(5, rows.length);
+  let bestIdx = 0, bestScore = -1;
+  for (let i = 0; i < limit; i++) {
+    const r = rows[i] || [];
+    const nonEmpty = r.filter(v => String(v ?? '').trim() !== '');
+    const strCount = nonEmpty.filter(v => typeof v !== 'number').length;
+    const score = nonEmpty.length * 2 + strCount;
+    if (nonEmpty.length >= 2 && score > bestScore) { bestScore = score; bestIdx = i; }
+  }
+  return bestIdx;
+}
+
+function parseMoney(v) {
+  if (typeof v === 'number' && Number.isFinite(v)) return Math.round(v * 100) / 100;
+  const cleaned = String(v ?? '').replace(/[¥￥$,\s]/g, '');
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
+}
+
+function formatDateCellIfDateCol(v) {
+  const s = String(v ?? '').trim();
+  if (!s) return '';
+  if (/^\d{4}[-/]\d{1,2}[-/]\d{1,2}/.test(s)) return s;
+  const num = Number(s);
+  if (Number.isFinite(num) && num >= 20000 && num <= 80000) return serialToIsoDate(num);
+  return s;
+}
+
+function findColIdx(headers, kws) {
+  const norm = headers.map(h => String(h || '').trim().toLowerCase());
+  for (const kw of kws) {
+    const idx = norm.findIndex(h => h.includes(kw));
+    if (idx >= 0) return idx;
+  }
+  return -1;
+}
+
+function resolveColByNameOrIdx(headers, targetName, fallbackIdx, kws) {
+  if (targetName) {
+    const exact = headers.findIndex(h => h === targetName);
+    if (exact >= 0) return exact;
+    const lower = targetName.toLowerCase();
+    const ci = headers.findIndex(h => h.toLowerCase() === lower);
+    if (ci >= 0) return ci;
+  }
+  if (kws && kws.length) {
+    const byKw = findColIdx(headers, kws);
+    if (byKw >= 0) return byKw;
+  }
+  return (fallbackIdx >= 0 && fallbackIdx < headers.length) ? fallbackIdx : -1;
+}
+
+/* ============================================================================
+ * 2. Tab 1: 多表一键合并（按列名自动对齐 + 同表重名列防覆盖 + 选项即时重算）
+ * ============================================================================ */
+const mergeState = { files: [], headers: [], rows: [], skipped: 0, sheetsRead: 0 };
+
+function renderMergeFiles() {
+  const listEl = document.getElementById('mFileList');
+  listEl.innerHTML = mergeState.files
+    .map((f, idx) => '<li><span class="fname">' + xmlEsc(f.name) + '</span><span class="fmeta"><span class="num">' + f.sheets.length + ' Sheet</span><button type="button" class="chip-del" data-m-del="' + idx + '" aria-label="remove">&times;</button></span></li>').join('');
+  const clearBtn = document.getElementById('mClearBtn');
+  if (clearBtn) clearBtn.style.display = mergeState.files.length ? 'inline-flex' : 'none';
+}
+
+function resetMergeOutput() {
+  mergeState.headers = []; mergeState.rows = []; mergeState.skipped = 0; mergeState.sheetsRead = 0;
+  document.getElementById('mKpiFiles').textContent = '0';
+  document.getElementById('mKpiRows').textContent = '0';
+  document.getElementById('mKpiCols').textContent = '0';
+  document.getElementById('mKpiSkipped').textContent = '0';
+  document.getElementById('mThead').innerHTML = '';
+  document.getElementById('mTbody').innerHTML = '<tr><td class="empty-cell">—</td></tr>';
+  document.getElementById('mExportXlsxBtn').disabled = true;
+  document.getElementById('mExportCsvBtn').disabled = true;
+  const st = document.getElementById('mStatus');
+  st.className = 'msg-bar'; st.textContent = STR.statusReady;
+}
+
+function runMerge() {
+  const statusEl = document.getElementById('mStatus');
+  if (!mergeState.files.length) { statusEl.className = 'msg-bar err'; statusEl.textContent = STR.noFilesMsg; return; }
+  const allSheets = document.getElementById('mAllSheets').checked;
+  const addSource = document.getElementById('mAddSource').checked;
+  const doTrim = document.getElementById('mTrim').checked;
+  const doDedup = document.getElementById('mDedup').checked;
+
+  const colOrder = [];
+  const colSet = new Set();
+  const rawRecords = [];
+  let sheetsRead = 0, skipped = 0;
+
+  for (const f of mergeState.files) {
+    const targets = allSheets ? f.sheets : f.sheets.slice(0, 1);
+    for (const sh of targets) {
+      if (!sh.rows.length) continue;
+      sheetsRead++;
+      const hIdx = detectHeaderRowIndex(sh.rows);
+      const rawH = normalizeUniqueHeaders(sh.rows[hIdx]);
+      rawH.forEach(h => { if (!colSet.has(h)) { colSet.add(h); colOrder.push(h); } });
+
+      for (let i = hIdx + 1; i < sh.rows.length; i++) {
+        const row = sh.rows[i] || [];
+        const rec = {};
+        let hasAny = false;
+        for (let c = 0; c < rawH.length; c++) {
+          let v = row[c] ?? '';
+          if (doTrim && typeof v === 'string') v = v.trim();
+          if (String(v).trim() !== '') hasAny = true;
+          rec[rawH[c]] = v;
+        }
+        if (!hasAny) { skipped++; continue; }
+        rec.__srcFile = f.name;
+        rec.__srcSheet = sh.name;
+        rawRecords.push(rec);
+      }
+    }
+  }
+
+  const finalHeaders = addSource ? [...colOrder, STR.sourceFileCol, STR.sourceSheetCol] : [...colOrder];
+  const seen = new Set();
+  const finalRows = [];
+  for (const rec of rawRecords) {
+    const arr = colOrder.map(h => rec[h] ?? '');
+    if (addSource) arr.push(rec.__srcFile, rec.__srcSheet);
+    if (doDedup) {
+      const key = JSON.stringify(arr);
+      if (seen.has(key)) { skipped++; continue; }
+      seen.add(key);
+    }
+    finalRows.push(arr);
+  }
+
+  mergeState.headers = finalHeaders;
+  mergeState.rows = finalRows;
+  mergeState.skipped = skipped;
+  mergeState.sheetsRead = sheetsRead;
+
+  document.getElementById('mKpiFiles').textContent = sheetsRead;
+  document.getElementById('mKpiRows').textContent = finalRows.length;
+  document.getElementById('mKpiCols').textContent = finalHeaders.length;
+  document.getElementById('mKpiSkipped').textContent = skipped;
+
+  document.getElementById('mThead').innerHTML = '<tr>' + finalHeaders.map(h => '<th>' + xmlEsc(h) + '</th>').join('') + '</tr>';
+  const preview = finalRows.slice(0, 100);
+  document.getElementById('mTbody').innerHTML = preview.length
+    ? preview.map(r => '<tr>' + r.map(v => '<td' + (typeof v === 'number' ? ' class="num"' : '') + '>' + xmlEsc(v) + '</td>').join('') + '</tr>').join('')
+    : '<tr><td colspan="' + Math.max(1, finalHeaders.length) + '" class="empty-cell">—</td></tr>';
+
+  document.getElementById('mExportXlsxBtn').disabled = !finalRows.length;
+  document.getElementById('mExportCsvBtn').disabled = !finalRows.length;
+  statusEl.className = 'msg-bar ok';
+  statusEl.textContent = (STR.lang === 'zh'
+    ? '合并完成：' + sheetsRead + ' 个工作表 · 输出 ' + finalRows.length + ' 行（清理 ' + skipped + ' 行）'
+    : 'Merged ' + sheetsRead + ' sheets · ' + finalRows.length + ' rows (' + skipped + ' cleaned)');
+}
+
+function buildMergeExportBlob() {
+  const capped = applyExportEditionCap(mergeState.headers, mergeState.rows);
+  return buildMultiSheetXlsxBytes([{ name: STR.sheetMerged, rows: capped }]);
+}
+
+/* ============================================================================
+ * 3. Tab 2: 一表按列拆多表（安全文件名清洗 + 纯 JS 多文件 ZIP + 多 Sheet .xlsx）
+ * ============================================================================ */
+const splitState = { file: null, sheetIdx: 0, headers: [], dataRows: [], colIdx: 0, groups: [], emptyCount: 0 };
+
+function populateSplitSelectors() {
+  const sSel = document.getElementById('sSheetSelect');
+  sSel.innerHTML = splitState.file.sheets.map((sh, i) => '<option value="' + i + '">' + xmlEsc(sh.name) + '</option>').join('');
+  sSel.value = String(splitState.sheetIdx);
+  loadSplitSheet(splitState.sheetIdx);
+}
+
+function loadSplitSheet(idx) {
+  splitState.sheetIdx = idx;
+  const sh = splitState.file.sheets[idx];
+  const hIdx = detectHeaderRowIndex(sh.rows);
+  splitState.headers = normalizeUniqueHeaders(sh.rows[hIdx]);
+  splitState.dataRows = sh.rows.slice(hIdx + 1).filter(r => r && r.some(v => String(v ?? '').trim() !== ''));
+
+  const cSel = document.getElementById('sColSelect');
+  cSel.innerHTML = splitState.headers.map((h, i) => '<option value="' + i + '">' + xmlEsc(h) + '</option>').join('');
+  const smart = findColIdx(splitState.headers, ['渠道','门店','部门','地区','省份','销售员','组','department','dept','store','region','channel','category','team','branch','group','owner']);
+  splitState.colIdx = smart >= 0 ? smart : 0;
+  cSel.value = String(splitState.colIdx);
+  computeSplitGroups();
+}
+
+function computeSplitGroups() {
+  const cIdx = splitState.colIdx;
+  const map = new Map();
+  let emptyCount = 0;
+
+  for (const r of splitState.dataRows) {
+    const rawVal = String(r[cIdx] ?? '').trim();
+    const key = rawVal || STR.emptyGroupName;
+    if (!rawVal) emptyCount++;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(splitState.headers.map((_, i) => r[i] ?? ''));
+  }
+
+  const usedFiles = new Set();
+  const usedSheets = new Set();
+  const groups = [];
+  for (const [rawKey, rows] of map.entries()) {
+    groups.push({
+      rawKey,
+      rows,
+      safeFileName: sanitizeFileName(rawKey, usedFiles),
+      safeSheetName: sanitizeSheetName(rawKey, usedSheets)
+    });
+  }
+
+  splitState.groups = groups;
+  splitState.emptyCount = emptyCount;
+
+  const maxRows = groups.reduce((m, g) => Math.max(m, g.rows.length), 0);
+  document.getElementById('sKpiTotal').textContent = splitState.dataRows.length;
+  document.getElementById('sKpiGroups').textContent = groups.length;
+  document.getElementById('sKpiEmpty').textContent = emptyCount;
+  document.getElementById('sKpiMax').textContent = maxRows;
+
+  document.getElementById('sPreviewBody').innerHTML = groups.map(g =>
+    '<tr><td>' + xmlEsc(g.rawKey) + '</td><td class="num">' + g.rows.length + '</td><td><code>' + xmlEsc(g.safeFileName) + '</code></td><td><code>' + xmlEsc(g.safeSheetName) + '</code></td></tr>'
+  ).join('');
+
+  document.getElementById('sExportZipBtn').disabled = !groups.length;
+  document.getElementById('sExportMultiBtn').disabled = !groups.length;
+  const st = document.getElementById('sStatus');
+  st.className = 'msg-bar ok';
+  st.textContent = (STR.lang === 'zh'
+    ? '拆分就绪：' + splitState.dataRows.length + ' 行 → ' + groups.length + ' 个安全分组'
+    : 'Ready: ' + splitState.dataRows.length + ' rows → ' + groups.length + ' safe groups');
+}
+
+async function buildSplitZipBlob() {
+  const cappedGroups = applySplitGroupCap(splitState.groups);
+  const zipEntries = [];
+  for (const g of cappedGroups) {
+    const xlsxBlob = buildMultiSheetXlsxBytes([{ name: g.safeSheetName, rows: [splitState.headers, ...g.rows] }]);
+    const u8 = new Uint8Array(await xlsxBlob.arrayBuffer());
+    zipEntries.push([g.safeFileName, u8]);
+  }
+  return makeBinaryZip(zipEntries, 'application/zip');
+}
+
+function buildSplitMultiSheetBlob() {
+  const cappedGroups = applySplitGroupCap(splitState.groups);
+  return buildMultiSheetXlsxBytes(cappedGroups.map(g => ({
+    name: g.safeSheetName,
+    rows: [splitState.headers, ...g.rows]
+  })));
+}
+
+/* ============================================================================
+ * 4. Tab 3: 财务/电商双向智能对账（多销售表按列名动态定位 + 中英文全本地化报告）
+ * ============================================================================ */
+const reconState = {
+  salesFiles: [], finFile: null,
+  salesHeaders: [], finHeaders: [],
+  results: [], channelSummary: [], kpis: null,
+  filter: 'ALL', search: ''
+};
+
+function fillSelect(elId, headers, selectedIdx, optional) {
+  const el = document.getElementById(elId);
+  let opts = optional ? '<option value="-1">' + xmlEsc(STR.noOption) + '</option>' : '';
+  opts += headers.map((h, i) => '<option value="' + i + '">' + xmlEsc(h) + '</option>').join('');
+  el.innerHTML = opts;
+  el.value = String(selectedIdx >= 0 ? selectedIdx : (optional ? -1 : 0));
+}
+
+function refreshReconMappings() {
+  if (!reconState.salesFiles.length || !reconState.finFile) return;
+  const sRows = reconState.salesFiles[0].sheets[0].rows;
+  const sH = normalizeUniqueHeaders(sRows[detectHeaderRowIndex(sRows)]);
+  const fRows = reconState.finFile.sheets[0].rows;
+  const fH = normalizeUniqueHeaders(fRows[detectHeaderRowIndex(fRows)]);
+  reconState.salesHeaders = sH;
+  reconState.finHeaders = fH;
+
+  fillSelect('mapSId', sH, findColIdx(sH, ['订单号','单号','order','id']), false);
+  fillSelect('mapSAmt', sH, findColIdx(sH, ['应收','订单金额','金额','amount','total']), false);
+  fillSelect('mapSCh', sH, findColIdx(sH, ['渠道','门店','店铺','来源','channel','store']), true);
+  fillSelect('mapSDate', sH, findColIdx(sH, ['日期','时间','date']), true);
+
+  fillSelect('mapFId', fH, findColIdx(fH, ['关联订单号','订单号','单号','order','ref']), false);
+  fillSelect('mapFAmt', fH, findColIdx(fH, ['实收','收款金额','金额','received','amount']), false);
+  fillSelect('mapFCh', fH, findColIdx(fH, ['收款渠道','渠道','账户','bank','method']), true);
+  fillSelect('mapFDate', fH, findColIdx(fH, ['到账日期','日期','时间','date']), true);
+  document.getElementById('rMapCard').style.display = 'block';
+}
+
+function runRecon() {
+  const stEl = document.getElementById('rStatus');
+  if (!reconState.salesFiles.length || !reconState.finFile) {
+    stEl.className = 'msg-bar err';
+    stEl.textContent = STR.noFilesMsg;
+    return;
+  }
+  const cSIdIdx = parseInt(document.getElementById('mapSId').value, 10);
+  const cSAmtIdx = parseInt(document.getElementById('mapSAmt').value, 10);
+  const cSChIdx = parseInt(document.getElementById('mapSCh').value, 10);
+  const cSDateIdx = parseInt(document.getElementById('mapSDate').value, 10);
+  const cFId = parseInt(document.getElementById('mapFId').value, 10);
+  const cFAmt = parseInt(document.getElementById('mapFAmt').value, 10);
+  const cFCh = parseInt(document.getElementById('mapFCh').value, 10);
+  const cFDate = parseInt(document.getElementById('mapFDate').value, 10);
+
+  // 记录用户选中的销售表列名，跨多张列顺序不同的销售表时按列名自动定位
+  const sIdName = reconState.salesHeaders[cSIdIdx] || '';
+  const sAmtName = reconState.salesHeaders[cSAmtIdx] || '';
+  const sChName = cSChIdx >= 0 ? (reconState.salesHeaders[cSChIdx] || '') : '';
+  const sDateName = cSDateIdx >= 0 ? (reconState.salesHeaders[cSDateIdx] || '') : '';
+
+  const salesItems = [];
+  const orderCount = new Map();
+  for (const f of reconState.salesFiles) {
+    const rows = f.sheets[0].rows;
+    const hIdx = detectHeaderRowIndex(rows);
+    const h = normalizeUniqueHeaders(rows[hIdx]);
+    const cSId = resolveColByNameOrIdx(h, sIdName, cSIdIdx, ['订单号','单号','order','id']);
+    const cSAmt = resolveColByNameOrIdx(h, sAmtName, cSAmtIdx, ['应收','订单金额','金额','amount','total']);
+    const cSCh = cSChIdx >= 0 ? resolveColByNameOrIdx(h, sChName, cSChIdx, ['渠道','门店','店铺','来源','channel','store']) : -1;
+    const cSDate = cSDateIdx >= 0 ? resolveColByNameOrIdx(h, sDateName, cSDateIdx, ['日期','时间','date']) : -1;
+    const cCust = findColIdx(h, ['客户','买家','名称','customer','client']);
+    for (let i = hIdx + 1; i < rows.length; i++) {
+      const r = rows[i] || [];
+      const id = cSId >= 0 ? String(r[cSId] ?? '').trim() : '';
+      if (!id) continue;
+      orderCount.set(id, (orderCount.get(id) || 0) + 1);
+      salesItems.push({
+        id,
+        channel: cSCh >= 0 && r[cSCh] ? String(r[cSCh]).trim() : f.name.replace(/\.(xlsx|csv)$/i, ''),
+        date: cSDate >= 0 ? formatDateCellIfDateCol(r[cSDate]) : '',
+        note: cCust >= 0 ? String(r[cCust] ?? '').trim() : '',
+        salesAmt: cSAmt >= 0 ? parseMoney(r[cSAmt]) : 0
+      });
+    }
+  }
+
+  const finMap = new Map();
+  const fRows = reconState.finFile.sheets[0].rows;
+  const fHIdx = detectHeaderRowIndex(fRows);
+  const fNoteCol = findColIdx(fRows[fHIdx], ['备注','说明','note','memo']);
+  let totalFinAmt = 0;
+  for (let i = fHIdx + 1; i < fRows.length; i++) {
+    const r = fRows[i] || [];
+    const id = String(r[cFId] ?? '').trim();
+    if (!id) continue;
+    const amt = parseMoney(r[cFAmt]);
+    totalFinAmt = Math.round((totalFinAmt + amt) * 100) / 100;
+    const prev = finMap.get(id) || { amt: 0, date: '', channel: '', note: '', matched: false };
+    prev.amt = Math.round((prev.amt + amt) * 100) / 100;
+    prev.date = prev.date || (cFDate >= 0 ? formatDateCellIfDateCol(r[cFDate]) : '');
+    prev.channel = prev.channel || (cFCh >= 0 ? String(r[cFCh] ?? '').trim() : 'Finance');
+    prev.note = prev.note || (fNoteCol >= 0 ? String(r[fNoteCol] ?? '').trim() : '');
+    finMap.set(id, prev);
+  }
+
+  const results = [];
+  const chStats = new Map();
+  const dupFinCounted = new Set();
+  let totalSalesAmt = 0, okCount = 0, diffCount = 0, dupCount = 0, missFinCount = 0, missSalesCount = 0;
+  let uniqueMatchedFinAmt = 0, dupHeldFinAmt = 0, missSalesFinAmt = 0;
+
+  for (const s of salesItems) {
+    totalSalesAmt = Math.round((totalSalesAmt + s.salesAmt) * 100) / 100;
+    const fin = finMap.get(s.id);
+    const isDup = (orderCount.get(s.id) || 0) > 1;
+    const finAmt = fin ? fin.amt : 0;
+    if (fin) fin.matched = true;
+    const diff = Math.round((s.salesAmt - finAmt) * 100) / 100;
+
+    let status = STR.stOk;
+    if (isDup) {
+      status = STR.stDup; dupCount++;
+      if (fin && !dupFinCounted.has(s.id)) {
+        dupFinCounted.add(s.id);
+        dupHeldFinAmt = Math.round((dupHeldFinAmt + finAmt) * 100) / 100;
+      }
+    } else if (!fin) { status = STR.stMissFin; missFinCount++; }
+    else if (Math.abs(diff) > 0.01) { status = STR.stDiff; diffCount++; }
+    else { okCount++; }
+
+    results.push({ id: s.id, channel: s.channel, date: s.date, note: s.note, salesAmt: s.salesAmt, finAmt, diff, status });
+
+    const cs = chStats.get(s.channel) || { channel: s.channel, salesAmt: 0, finAmt: 0 };
+    cs.salesAmt = Math.round((cs.salesAmt + s.salesAmt) * 100) / 100;
+    if (!isDup) {
+      cs.finAmt = Math.round((cs.finAmt + finAmt) * 100) / 100;
+      uniqueMatchedFinAmt = Math.round((uniqueMatchedFinAmt + finAmt) * 100) / 100;
+    }
+    chStats.set(s.channel, cs);
+  }
+
+  for (const [id, fin] of finMap.entries()) {
+    if (!fin.matched) {
+      missSalesCount++;
+      missSalesFinAmt = Math.round((missSalesFinAmt + fin.amt) * 100) / 100;
+      results.push({
+        id, channel: fin.channel, date: fin.date, note: fin.note || STR.stMissSales,
+        salesAmt: 0, finAmt: fin.amt, diff: Math.round((0 - fin.amt) * 100) / 100, status: STR.stMissSales
+      });
+    }
+  }
+
+  const balanceGap = Math.round((totalFinAmt - (uniqueMatchedFinAmt + dupHeldFinAmt + missSalesFinAmt)) * 100) / 100;
+  reconState.results = results;
+  reconState.channelSummary = Array.from(chStats.values());
+  reconState.kpis = {
+    salesCount: salesItems.length, totalSalesAmt, totalFinAmt, okCount, diffCount,
+    alertCount: dupCount + missFinCount + missSalesCount,
+    dupCount, missFinCount, missSalesCount, uniqueMatchedFinAmt, dupHeldFinAmt, missSalesFinAmt, balanceGap
+  };
+
+  renderReconView();
+  document.getElementById('rExportXlsxBtn').disabled = false;
+  document.getElementById('rExportCsvBtn').disabled = false;
+  stEl.className = 'msg-bar ok';
+  stEl.textContent = (STR.lang === 'zh'
+    ? '对账完成：' + salesItems.length + ' 笔销售 / ' + finMap.size + ' 笔流水 · 检出 ' + (diffCount + dupCount + missFinCount + missSalesCount) + ' 条异常'
+    : 'Reconciled ' + salesItems.length + ' sales / ' + finMap.size + ' receipts · ' + (diffCount + dupCount + missFinCount + missSalesCount) + ' exceptions');
+}
+
+function renderReconView() {
+  const k = reconState.kpis;
+  document.getElementById('rkCount').textContent = k.salesCount;
+  document.getElementById('rkSAmt').textContent = k.totalSalesAmt.toFixed(2);
+  document.getElementById('rkFAmt').textContent = k.totalFinAmt.toFixed(2);
+  document.getElementById('rkOk').textContent = k.okCount;
+  document.getElementById('rkDiff').textContent = k.diffCount;
+  document.getElementById('rkAlert').textContent = k.alertCount;
+
+  const card = document.getElementById('rChartCard');
+  card.style.display = 'block';
+  const maxV = Math.max(100, ...reconState.channelSummary.flatMap(c => [c.salesAmt, c.finAmt]));
+  const rowH = 44, padL = 108, padR = 96, w = 740, barW = w - padL - padR;
+  const h = reconState.channelSummary.length * rowH + 34;
+  let svg = '<svg class="recon-svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:760px;display:block;">';
+  svg += '<rect x="' + padL + '" y="4" width="12" height="12" fill="var(--chart-sales)" rx="3"/><text x="' + (padL + 18) + '" y="14" font-size="12" fill="var(--ty-text-secondary)">' + xmlEsc(STR.legendSales) + '</text>';
+  svg += '<rect x="' + (padL + 116) + '" y="4" width="12" height="12" fill="var(--chart-fin)" rx="3"/><text x="' + (padL + 134) + '" y="14" font-size="12" fill="var(--ty-text-secondary)">' + xmlEsc(STR.legendFin) + '</text>';
+  reconState.channelSummary.forEach((c, idx) => {
+    const y = 30 + idx * rowH;
+    const sw = Math.max(2, (c.salesAmt / maxV) * barW);
+    const fw = Math.max(2, (c.finAmt / maxV) * barW);
+    svg += '<text x="' + (padL - 12) + '" y="' + (y + 20) + '" text-anchor="end" font-size="12" font-weight="600" fill="var(--ty-text-primary)">' + xmlEsc(c.channel) + '</text>';
+    svg += '<rect x="' + padL + '" y="' + y + '" width="' + sw.toFixed(1) + '" height="13" fill="var(--chart-sales)" rx="3"/>';
+    svg += '<text class="svg-num" x="' + (padL + sw + 8).toFixed(1) + '" y="' + (y + 10) + '" font-size="11.5" fill="var(--ty-text-secondary)">' + c.salesAmt.toFixed(2) + '</text>';
+    svg += '<rect x="' + padL + '" y="' + (y + 17) + '" width="' + fw.toFixed(1) + '" height="13" fill="var(--chart-fin)" rx="3"/>';
+    svg += '<text class="svg-num" x="' + (padL + fw + 8).toFixed(1) + '" y="' + (y + 28) + '" font-size="11.5" fill="var(--ty-success-fg)">' + c.finAmt.toFixed(2) + '</text>';
+  });
+  svg += '</svg>';
+  document.getElementById('rSvgChart').innerHTML = svg;
+
+  const balSum = (k.uniqueMatchedFinAmt + k.dupHeldFinAmt + k.missSalesFinAmt).toFixed(2);
+  document.getElementById('rBalanceBar').innerHTML = '<strong>' + STR.balPrefix + '</strong>'
+    + formatBalanceText(k.uniqueMatchedFinAmt.toFixed(2), k.dupHeldFinAmt.toFixed(2), k.missSalesFinAmt.toFixed(2), balSum, k.balanceGap.toFixed(2));
+
+  renderReconTable();
+}
+
+function renderReconTable() {
+  const q = reconState.search.trim().toLowerCase();
+  const list = reconState.results.filter(r => {
+    if (reconState.filter === 'ALERT' && r.status === STR.stOk) return false;
+    if (reconState.filter !== 'ALL' && reconState.filter !== 'ALERT' && r.status !== reconState.filter) return false;
+    if (q && !(r.id.toLowerCase().includes(q) || r.channel.toLowerCase().includes(q) || r.note.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  const cls = s => s === STR.stOk ? 'st-ok' : (s === STR.stDiff ? 'st-warn' : (s === STR.stMissSales ? 'st-info' : 'st-err'));
+  document.getElementById('rBody').innerHTML = list.length
+    ? list.map(r => '<tr><td class="num"><strong>' + xmlEsc(r.id) + '</strong></td><td>' + xmlEsc(r.channel) + '</td><td class="num">' + xmlEsc(r.date) + '</td><td>' + xmlEsc(r.note) + '</td><td class="num">' + r.salesAmt.toFixed(2) + '</td><td class="num">' + r.finAmt.toFixed(2) + '</td><td class="num">' + r.diff.toFixed(2) + '</td><td><span class="status-pill ' + cls(r.status) + '">' + xmlEsc(r.status) + '</span></td></tr>').join('')
+    : '<tr><td colspan="8" class="empty-cell">—</td></tr>';
+}
+
+function buildReconExportBlob() {
+  const k = reconState.kpis;
+  const L = STR.exportSummaryLabels;
+  const sumRows = [
+    L.head,
+    [L.salesCount, k.salesCount],
+    [L.totalSalesAmt, k.totalSalesAmt],
+    [L.totalFinAmt, k.totalFinAmt],
+    [L.okCount, k.okCount],
+    [L.diffCount, k.diffCount],
+    [L.missFinCount, k.missFinCount],
+    [L.dupCount, k.dupCount],
+    [L.dupHeldFinAmt, k.dupHeldFinAmt],
+    [L.missSalesCount, k.missSalesCount],
+    [L.missSalesFinAmt, k.missSalesFinAmt],
+    [L.uniqueMatchedFinAmt, k.uniqueMatchedFinAmt],
+    [L.balanceGap, k.balanceGap]
+  ];
+  const header = STR.exportDetailHeaders;
+  const toR = r => [r.id, r.channel, r.date, r.note, r.salesAmt, r.finAmt, r.diff, r.status];
+  const alerts = applyExportEditionCap(header, reconState.results.filter(r => r.status !== STR.stOk).map(toR));
+  const all = applyExportEditionCap(header, reconState.results.map(toR));
+  return buildMultiSheetXlsxBytes([
+    { name: STR.sheetSummary, rows: sumRows },
+    { name: STR.sheetAlert, rows: alerts },
+    { name: STR.sheetAll, rows: all }
+  ]);
+}
+
+/* ============================================================================
+ * 5. 内置 1 秒体验示例数据 + 交互事件绑定（防抖搜索 + Tooltip + 重置 input）
+ * ============================================================================ */
+function loadMergeDemo() {
+  if (STR.lang === 'en') {
+    mergeState.files = [
+      { name: 'East_Store_Nov.xlsx', sheets: [{ name: 'Sales', rows: [
+        ['Order_ID','Date','Store','Amount'],
+        ['ORD-001','2026-11-01','East Store',1280],
+        [' ORD-002 ','2026-11-02','East Store',860.5],
+        ['ORD-003','2026-11-03','East Store',450]
+      ] }] },
+      { name: 'South_Store_Nov.xlsx', sheets: [{ name: 'Sales', rows: [
+        ['Store','Order_ID','Amount','Date','Note'],
+        ['South Store','ORD-101',1500,'2026-11-02','Auto-aligned column order'],
+        ['South Store','ORD-102',320,'2026-11-04','OK']
+      ] }] }
+    ];
+  } else {
+    mergeState.files = [
+      { name: '华东门店_11月.xlsx', sheets: [{ name: '销售', rows: [
+        ['订单号','日期','门店','金额'],
+        ['ORD-001','2026-11-01','华东门店',1280],
+        [' ORD-002 ','2026-11-02','华东门店',860.5],
+        ['ORD-003','2026-11-03','华东门店',450]
+      ] }] },
+      { name: '华南门店_11月.xlsx', sheets: [{ name: '销售', rows: [
+        ['门店','订单号','金额','日期','备注'],
+        ['华南门店','ORD-101',1500,'2026-11-02','列顺序不同自动对齐'],
+        ['华南门店','ORD-102',320,'2026-11-04','正常']
+      ] }] }
+    ];
+  }
+  renderMergeFiles();
+  runMerge();
+}
+
+function loadSplitDemo() {
+  if (STR.lang === 'en') {
+    splitState.file = { name: 'Master_Sales_Demo.xlsx', sheets: [{ name: 'Master', rows: [
+      ['Order_ID','Department','Date','Amount'],
+      ['D01','East/Team*A','2026-11-01',1200],
+      ['D02','East/Team*A','2026-11-02',800],
+      ['D03','South:Direct','2026-11-03',950],
+      ['D04','','2026-11-04',400],
+      ['D05','Online Store','2026-11-05',1500]
+    ] }] };
+  } else {
+    splitState.file = { name: '全公司销售总表_示例.xlsx', sheets: [{ name: '总表', rows: [
+      ['订单号','所属部门','日期','金额'],
+      ['D01','华东/A*部','2026-11-01',1200],
+      ['D02','华东/A*部','2026-11-02',800],
+      ['D03','华南门店:直营','2026-11-03',950],
+      ['D04','','2026-11-04',400],
+      ['D05','线上业务部','2026-11-05',1500]
+    ] }] };
+  }
+  document.getElementById('sFileList').innerHTML = '<li><span class="fname">' + xmlEsc(splitState.file.name) + '</span><span class="fmeta num">5 rows</span></li>';
+  populateSplitSelectors();
+}
+
+function loadReconDemo() {
+  if (STR.lang === 'en') {
+    reconState.salesFiles = [
+      { name: 'East_Sales.xlsx', sheets: [{ name: 'S1', rows: [
+        ['Order_ID','Date','Channel','Customer','Amount'],
+        ['ORD-001','2026-11-01','East Store','Client A',1280],
+        [' ORD-002 ','2026-11-02','East Store','Client B',3200],
+        ['ORD-003','2026-11-03','East Store','Client C',990],
+        ['ORD-003','2026-11-03','East Store','Client C (Dup)',990],
+        ['ORD-004','2026-11-04','East Store','Client D',1500]
+      ] }] },
+      { name: 'Online_Sales.xlsx', sheets: [{ name: 'S1', rows: [
+        ['Channel','Order_ID','Amount','Date','Customer'],
+        ['Online Shop','ORD-101',699,'2026-11-05','Client E'],
+        ['Online Shop','ORD-102',1299.5,'2026-11-06','Client F']
+      ] }] }
+    ];
+    reconState.finFile = { name: 'Bank_Receipts.xlsx', sheets: [{ name: 'F1', rows: [
+      ['Ref_No','Order_ID','Date','Received','Method','Note'],
+      ['F1','ORD-001','2026-11-01',1280,'Bank Wire','Matched'],
+      ['F2','ORD-002','2026-11-02',3180,'Bank Wire','-$20 fee diff'],
+      ['F3','ORD-003','2026-11-03',990,'Card','Single receipt'],
+      ['F4','ORD-101','2026-11-05',699,'Stripe','Matched'],
+      ['F5','ORD-102','2026-11-06',1284,'Stripe','-$15.5 diff'],
+      ['F6','ORD-999','2026-11-08',880,'Bank Wire','Unmatched deposit']
+    ] }] };
+  } else {
+    reconState.salesFiles = [
+      { name: '华东销售.xlsx', sheets: [{ name: 'S1', rows: [
+        ['订单号','订单日期','渠道','客户简称','应收金额'],
+        ['ORD-001','2026-11-01','华东门店','客户A',1280],
+        [' ORD-002 ','2026-11-02','华东门店','客户B',3200],
+        ['ORD-003','2026-11-03','华东门店','客户C',990],
+        ['ORD-003','2026-11-03','华东门店','客户C(重复)',990],
+        ['ORD-004','2026-11-04','华东门店','客户D',1500]
+      ] }] },
+      { name: '线上销售.xlsx', sheets: [{ name: 'S1', rows: [
+        ['渠道','订单号','应收金额','订单日期','客户简称'],
+        ['线上店铺','ORD-101',699,'2026-11-05','客户E'],
+        ['线上店铺','ORD-102',1299.5,'2026-11-06','客户F']
+      ] }] }
+    ];
+    reconState.finFile = { name: '财务实收流水.xlsx', sheets: [{ name: 'F1', rows: [
+      ['流水号','关联订单号','到账日期','实收金额','收款渠道','备注'],
+      ['F1','ORD-001','2026-11-01',1280,'银行','正常'],
+      ['F2','ORD-002','2026-11-02',3180,'银行','少20元'],
+      ['F3','ORD-003','2026-11-03',990,'支付宝','单笔到账'],
+      ['F4','ORD-101','2026-11-05',699,'平台','正常'],
+      ['F5','ORD-102','2026-11-06',1284,'平台','差15.5'],
+      ['F6','ORD-999','2026-11-08',880,'微信','有款无单']
+    ] }] };
+  }
+  document.getElementById('rSalesFileList').innerHTML = reconState.salesFiles.map(f => '<li><span class="fname">' + xmlEsc(f.name) + '</span><span class="fmeta">OK</span></li>').join('');
+  document.getElementById('rFinFileList').innerHTML = '<li><span class="fname">' + xmlEsc(reconState.finFile.name) + '</span><span class="fmeta">OK</span></li>';
+  refreshReconMappings();
+  runRecon();
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.panel).classList.add('active');
+  });
+});
+
+// 统一 ? 问号气泡交互（轻触展开，点外部收回，不裁切）
+document.addEventListener('click', e => {
+  const trigger = e.target.closest('.tip-btn');
+  if (trigger) {
+    e.stopPropagation();
+    const wrap = trigger.closest('.tip-wrap');
+    const wasOpen = wrap.classList.contains('open');
+    document.querySelectorAll('.tip-wrap.open').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) wrap.classList.add('open');
+    return;
+  }
+  if (!e.target.closest('.tip-pop')) {
+    document.querySelectorAll('.tip-wrap.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+function bindDrop(dropId, onFiles) {
+  const el = document.getElementById(dropId);
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('over');
+    onFiles(Array.from(e.dataTransfer.files || []));
+  });
+}
+
+async function onMergeFiles(fileList) {
+  const st = document.getElementById('mStatus');
+  try {
+    const arr = Array.from(fileList || []);
+    if (!arr.length) return;
+    mergeState.files = [];
+    for (const f of arr) mergeState.files.push({ name: f.name, sheets: await readAnySpreadsheet(f) });
+    renderMergeFiles();
+    runMerge();
+  } catch (err) { st.className = 'msg-bar err'; st.textContent = err.message; }
+}
+document.getElementById('mInput').addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  onMergeFiles(files);
+});
+bindDrop('mDrop', onMergeFiles);
+document.getElementById('mFileList').addEventListener('click', e => {
+  const b = e.target.closest('[data-m-del]');
+  if (!b) return;
+  const idx = parseInt(b.dataset.mDel, 10);
+  mergeState.files.splice(idx, 1);
+  renderMergeFiles();
+  if (mergeState.files.length) runMerge(); else resetMergeOutput();
+});
+const mClearBtn = document.getElementById('mClearBtn');
+if (mClearBtn) mClearBtn.addEventListener('click', () => { mergeState.files = []; renderMergeFiles(); resetMergeOutput(); });
+['mAllSheets', 'mAddSource', 'mTrim', 'mDedup'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => { if (mergeState.files.length) runMerge(); });
+});
+document.getElementById('mRunBtn').addEventListener('click', runMerge);
+document.getElementById('mDemoBtn').addEventListener('click', loadMergeDemo);
+document.getElementById('mExportXlsxBtn').addEventListener('click', () => {
+  downloadBlob(buildMergeExportBlob(), STR.exportMergedName + '.xlsx');
+  document.getElementById('mStatus').textContent = EXPORT_DONE_MSG;
+});
+document.getElementById('mExportCsvBtn').addEventListener('click', () => {
+  downloadBlob(rowsToCsvBlob(applyExportEditionCap(mergeState.headers, mergeState.rows)), STR.exportMergedName + '.csv');
+  document.getElementById('mStatus').textContent = EXPORT_DONE_MSG;
+});
+
+async function onSplitFile(fileList) {
+  const st = document.getElementById('sStatus');
+  try {
+    const arr = Array.from(fileList || []);
+    if (!arr.length) return;
+    const f = arr[0];
+    splitState.file = { name: f.name, sheets: await readAnySpreadsheet(f) };
+    splitState.sheetIdx = 0;
+    document.getElementById('sFileList').innerHTML = '<li><span class="fname">' + xmlEsc(f.name) + '</span><span class="fmeta num">' + splitState.file.sheets.length + ' Sheet</span></li>';
+    populateSplitSelectors();
+  } catch (err) { st.className = 'msg-bar err'; st.textContent = err.message; }
+}
+document.getElementById('sInput').addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  onSplitFile(files);
+});
+bindDrop('sDrop', onSplitFile);
+document.getElementById('sSheetSelect').addEventListener('change', e => loadSplitSheet(parseInt(e.target.value, 10)));
+document.getElementById('sColSelect').addEventListener('change', e => { splitState.colIdx = parseInt(e.target.value, 10); computeSplitGroups(); });
+document.getElementById('sDemoBtn').addEventListener('click', loadSplitDemo);
+document.getElementById('sExportZipBtn').addEventListener('click', async () => {
+  downloadBlob(await buildSplitZipBlob(), STR.exportSplitZipName + '.zip');
+  document.getElementById('sStatus').textContent = EXPORT_DONE_MSG;
+});
+document.getElementById('sExportMultiBtn').addEventListener('click', () => {
+  downloadBlob(buildSplitMultiSheetBlob(), STR.exportSplitMultiName + '.xlsx');
+  document.getElementById('sStatus').textContent = EXPORT_DONE_MSG;
+});
+
+async function onReconSales(fileList) {
+  const st = document.getElementById('rStatus');
+  try {
+    const arr = Array.from(fileList || []);
+    if (!arr.length) return;
+    reconState.salesFiles = [];
+    for (const f of arr) reconState.salesFiles.push({ name: f.name, sheets: await readAnySpreadsheet(f) });
+    document.getElementById('rSalesFileList').innerHTML = reconState.salesFiles.map(f => '<li><span class="fname">' + xmlEsc(f.name) + '</span><span class="fmeta num">' + f.sheets[0].rows.length + ' rows</span></li>').join('');
+    refreshReconMappings();
+  } catch (err) { st.className = 'msg-bar err'; st.textContent = err.message; }
+}
+async function onReconFin(fileList) {
+  const st = document.getElementById('rStatus');
+  try {
+    const arr = Array.from(fileList || []);
+    if (!arr.length) return;
+    const f = arr[0];
+    reconState.finFile = { name: f.name, sheets: await readAnySpreadsheet(f) };
+    document.getElementById('rFinFileList').innerHTML = '<li><span class="fname">' + xmlEsc(f.name) + '</span><span class="fmeta num">' + reconState.finFile.sheets[0].rows.length + ' rows</span></li>';
+    refreshReconMappings();
+  } catch (err) { st.className = 'msg-bar err'; st.textContent = err.message; }
+}
+document.getElementById('rSalesInput').addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  onReconSales(files);
+});
+document.getElementById('rFinInput').addEventListener('change', e => {
+  const files = Array.from(e.target.files || []);
+  e.target.value = '';
+  onReconFin(files);
+});
+bindDrop('rSalesDrop', onReconSales);
+bindDrop('rFinDrop', onReconFin);
+['mapSId','mapSAmt','mapSCh','mapSDate','mapFId','mapFAmt','mapFCh','mapFDate'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    if (reconState.salesFiles.length && reconState.finFile && reconState.kpis) runRecon();
+  });
+});
+document.getElementById('rRunBtn').addEventListener('click', runRecon);
+document.getElementById('rDemoBtn').addEventListener('click', loadReconDemo);
+document.getElementById('rExportXlsxBtn').addEventListener('click', () => {
+  downloadBlob(buildReconExportBlob(), STR.exportReconName + '.xlsx');
+  document.getElementById('rStatus').textContent = EXPORT_DONE_MSG;
+});
+document.getElementById('rExportCsvBtn').addEventListener('click', () => {
+  const header = STR.exportDetailHeaders;
+  const rows = reconState.results.map(r => [r.id, r.channel, r.date, r.note, r.salesAmt.toFixed(2), r.finAmt.toFixed(2), r.diff.toFixed(2), r.status]);
+  downloadBlob(rowsToCsvBlob(applyExportEditionCap(header, rows)), STR.exportReconName + '.csv');
+  document.getElementById('rStatus').textContent = EXPORT_DONE_MSG;
+});
+document.getElementById('rFilterTabs').addEventListener('click', e => {
+  const b = e.target.closest('.ftab'); if (!b) return;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  b.classList.add('active'); reconState.filter = b.dataset.f; renderReconTable();
+});
+
+let rSearchTimer = null;
+const rSearchBox = document.getElementById('rSearchBox');
+const rSearchClear = document.getElementById('rSearchClear');
+rSearchBox.addEventListener('input', e => {
+  const val = e.target.value;
+  if (rSearchClear) rSearchClear.style.display = val ? 'inline-flex' : 'none';
+  clearTimeout(rSearchTimer);
+  rSearchTimer = setTimeout(() => { reconState.search = val; renderReconTable(); }, 90);
+});
+if (rSearchClear) rSearchClear.addEventListener('click', () => {
+  rSearchBox.value = ''; reconState.search = ''; rSearchClear.style.display = 'none'; renderReconTable();
+});
+
+if (typeof DecompressionStream === 'undefined') {
+  document.getElementById('compatBanner').style.display = 'block';
+}
+
+window.__SUITE_TEST__ = {
+  mergeState, splitState, reconState,
+  runMerge, computeSplitGroups, runRecon,
+  buildMergeExportBlob, buildSplitZipBlob, buildSplitMultiSheetBlob, buildReconExportBlob,
+  sanitizeFileName, sanitizeSheetName, xmlEsc, preserveLongIdOrParseNum
+};
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轻表效率工坊 · 100% 离线表格与数电票效率工具免费体验站</title>
+<style>
+  :root {
+    --bg: #F4F5F7; --surface: #FFFFFF; --subtle: #F0F2F5; --border: #E8EBF0; --border-strong: #D5DAE2;
+    --text: #14161A; --muted: #5F6673; --brand: #181A1F; --brand-fg: #FFFFFF;
+    --ok-fg: #157A42; --ok-soft: #E9F7EF; --danger-fg: #B93126; --danger-soft: #FEF2F2;
+    --shadow: 0 2px 8px rgba(15,18,25,.035), 0 6px 18px rgba(15,18,25,.025);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111820; --surface: #1B2530; --subtle: #263341; --border: #32404F; --border-strong: #435466;
+      --text: #EAF0F6; --muted: #A7B2BF; --brand: #F0F4F8; --brand-fg: #111820;
+      --ok-fg: #7EE2A8; --ok-soft: #1A3829; --danger-fg: #FF968E; --danger-soft: #3B2428;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px 16px 48px; font-family: "PingFang SC", -apple-system, "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; }
+  .wrap { max-width: 1020px; margin: 0 auto; }
+  .hero { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 24px 26px; display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .hero h1 { margin: 0 0 6px 0; font-size: 22px; font-weight: 600; }
+  .hero p { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; background: var(--ok-soft); color: var(--ok-fg); margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 18px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .card h2 { margin: 0; font-size: 17px; font-weight: 600; }
+  .card p { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .card img { width: 100%; border-radius: 10px; border: 1px solid var(--border); display: block; }
+  .note { padding: 8px 11px; border-radius: 8px; background: var(--danger-soft); color: var(--danger-fg); font-size: 12px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+  a.btn { display: inline-flex; align-items: center; justify-content: center; height: 38px; padding: 0 16px; border-radius: 9px; font-size: 13.5px; font-weight: 600; text-decoration: none; border: 1px solid var(--border-strong); color: var(--text); background: var(--surface); }
+  a.btn.primary { background: var(--brand); color: var(--brand-fg); border-color: var(--brand); }
+  a.btn:hover { opacity: 0.92; }
+  .foot { margin-top: 24px; text-align: center; font-size: 12.5px; color: var(--muted); }
+  .foot a { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <div class="badge">100% 本地浏览器离线运行 · 数据绝不上传云端</div>
+      <h1>轻表效率工坊 · 免费在线体验中心</h1>
+      <p>无需安装软件、免装 Python、免开 WPS 会员宏。先用您自己的真实表格或发票免费试用到满意，再按需获取完整买断版。</p>
+    </div>
+    <a class="btn primary" href="https://ifdian.net/a/qingbiaotool" target="_blank" rel="noopener">前往爱发电官方主页</a>
+  </header>
+
+  <main class="grid">
+    <article class="card">
+      <h2>1. 离线表格三合一神器 v1.1（合并 / 拆表 / 对账）</h2>
+      <p>多表乱序自动对齐合并、一表按列拆多表打包 ZIP 或多 Sheet、销售表 vs 财务流水双向自动对账（0.00 总账勾稽校验，15位长单号精度保真）。</p>
+      <img src="excel_toolkit_preview.png" alt="离线表格三合一神器界面预览">
+      <div class="note">适用边界：仅支持标准 .xlsx / .csv（老式 .xls 请先另存为 .xlsx）；免费版全预览开放，导出限前 20 行。</div>
+      <div class="actions">
+        <a class="btn primary" href="cn-excel-free.html">免费试用（中文版）</a>
+        <a class="btn" href="en-excel-free.html">English Trial</a>
+        <a class="btn" href="https://ifdian.net/a/qingbiaotool" target="_blank" rel="noopener">获取完整买断版</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>2. 数电票 XML/OFD 批量提取查重改名神器 v1.0</h2>
+      <p>批量拖入国标数电票 .xml / .ofd，3 秒导出 3-Sheet 报销台账 Excel、自动标红同号重复报销、自定义规则批量规范重命名打包 ZIP。</p>
+      <img src="invoice_toolkit_preview.png" alt="数电票提取查重改名神器界面预览">
+      <div class="note">适用边界：专注国标数电票 .xml 与标准 .ofd，明确不支持拍照/扫描件 PDF；免费版导出限前 3 张。</div>
+      <div class="actions">
+        <a class="btn primary" href="cn-invoice-free.html">免费试用（中文版）</a>
+        <a class="btn" href="https://ifdian.net/a/qingbiaotool" target="_blank" rel="noopener">获取完整买断版</a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="foot">
+    轻表效率工坊原创工具站 · 爱发电官方创作者主页：<a href="https://ifdian.net/a/qingbiaotool" target="_blank" rel="noopener">https://ifdian.net/a/qingbiaotool</a>
+  </footer>
+</div>
+</body>
+</html>

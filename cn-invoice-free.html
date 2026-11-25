@@ -1,0 +1,2232 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数电票 XML/OFD 批量提取查重改名神器（免费体验版）— 轻表效率工坊</title>
+<style>
+  /* ===== 方案 A 语义 Design Tokens（默认浅色） ===== */
+  :root {
+    --ty-bg-page: #F4F5F7;
+    --ty-bg-surface: #FFFFFF;
+    --ty-bg-subtle: #F0F2F5;
+    --ty-bg-hover: #E8EBF0;
+    --ty-border: #E8EBF0;
+    --ty-border-strong: #D5DAE2;
+
+    --ty-text-primary: #14161A;
+    --ty-text-secondary: #5F6673;
+    --ty-text-tertiary: #8D95A3;
+
+    --ty-brand-bg: #181A1F;
+    --ty-brand-fg: #FFFFFF;
+    --ty-brand-hover: #2C3039;
+    --ty-brand-soft: #ECEEF2;
+
+    --ty-accent: #C83E32;
+    --ty-danger-fg: #B93126;
+    --ty-danger-soft: #FEF2F2;
+    --ty-danger-row: #FFF7F7;
+    --ty-danger-border: #F5C7C3;
+
+    --ty-success-fg: #157A42;
+    --ty-success-soft: #E9F7EF;
+    --ty-success-border: #BFE6CE;
+
+    --ty-warn-fg: #A36100;
+    --ty-warn-soft: #FEF6E7;
+    --ty-warn-row: #FFFBF2;
+    --ty-warn-border: #F2D6A2;
+
+    --ty-disabled-bg: #E6E9EE;
+    --ty-disabled-fg: #9CA3AF;
+
+    --ty-shadow-card: 0 2px 8px rgba(15, 18, 25, .035), 0 6px 18px rgba(15, 18, 25, .025);
+    --ty-shadow-pop: 0 10px 28px rgba(15, 18, 25, .14);
+
+    --ty-radius-card: 16px;
+    --ty-radius-lg: 12px;
+    --ty-radius-md: 10px;
+    --ty-radius-sm: 8px;
+    --ty-radius-xs: 6px;
+  }
+
+  /* ===== 深色模式（跟随系统 prefers-color-scheme: dark，严禁死黑） ===== */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ty-bg-page: #111820;
+      --ty-bg-surface: #1B2530;
+      --ty-bg-subtle: #263341;
+      --ty-bg-hover: #2F3E4E;
+      --ty-border: #32404F;
+      --ty-border-strong: #435466;
+
+      --ty-text-primary: #EAF0F6;
+      --ty-text-secondary: #A7B2BF;
+      --ty-text-tertiary: #7B8A9C;
+
+      --ty-brand-bg: #F0F4F8;
+      --ty-brand-fg: #111820;
+      --ty-brand-hover: #DCE4EC;
+      --ty-brand-soft: #283544;
+
+      --ty-accent: #FF8A7E;
+      --ty-danger-fg: #FF968E;
+      --ty-danger-soft: #3B2428;
+      --ty-danger-row: #2B1F24;
+      --ty-danger-border: #5E343A;
+
+      --ty-success-fg: #7EE2A8;
+      --ty-success-soft: #1A3829;
+      --ty-success-border: #28563E;
+
+      --ty-warn-fg: #F7C96E;
+      --ty-warn-soft: #3B2F18;
+      --ty-warn-row: #2B271D;
+      --ty-warn-border: #5C4924;
+
+      --ty-disabled-bg: #232F3B;
+      --ty-disabled-fg: #637282;
+
+      --ty-shadow-card: none;
+      --ty-shadow-pop: 0 12px 32px rgba(0, 0, 0, .55);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { max-width: 100%; overflow-x: clip; }
+  body {
+    margin: 0; padding: 18px 16px 32px;
+    font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: var(--ty-bg-page); color: var(--ty-text-primary);
+    font-size: 14px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1360px; margin: 0 auto; }
+
+  .ico { width: 16px; height: 16px; flex-shrink: 0; vertical-align: -2px; }
+  .ico-sm { width: 14px; height: 14px; }
+  .ico-lg { width: 22px; height: 22px; color: var(--ty-text-secondary); }
+  .num { font-variant-numeric: tabular-nums; }
+  .muted { color: var(--ty-text-tertiary); }
+  .strong { font-weight: 600; }
+
+  /* 顶部工具栏 */
+  .topbar {
+    background: var(--ty-bg-surface);
+    border: 1px solid var(--ty-border);
+    border-radius: var(--ty-radius-card);
+    box-shadow: var(--ty-shadow-card);
+    padding: 15px 20px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  }
+  .brand-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .brand-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: var(--ty-radius-sm);
+    background: var(--ty-brand-bg); color: var(--ty-brand-fg);
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .topbar h1 { margin: 0; font-size: 18.5px; font-weight: 600; letter-spacing: -0.01em; }
+  .ed-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: var(--ty-radius-xs);
+    font-size: 12px; font-weight: 600;
+    background: var(--ty-brand-soft); color: var(--ty-text-secondary);
+  }
+  .ed-pill.pro { background: var(--ty-success-soft); color: var(--ty-success-fg); }
+  .topbar .sub { margin: 0; font-size: 12.5px; color: var(--ty-text-secondary); }
+  .top-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  /* 常驻拍前硬边界直显栏 */
+  .boundary-strip {
+    margin-top: 12px; padding: 10px 14px;
+    background: var(--ty-danger-soft); border: 1px solid var(--ty-danger-border);
+    border-radius: var(--ty-radius-md);
+    font-size: 12.5px; color: var(--ty-danger-fg);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .boundary-strip-left { display: inline-flex; align-items: flex-start; gap: 8px; line-height: 1.55; }
+  .boundary-strip-left .ico { margin-top: 2px; }
+
+  .compat-banner {
+    display: none; margin-top: 12px; padding: 10px 14px;
+    background: var(--ty-danger-soft); border: 1px solid var(--ty-danger-border);
+    border-radius: var(--ty-radius-md); color: var(--ty-danger-fg); font-size: 13px;
+  }
+
+  .free-cta {
+    margin-top: 12px; padding: 10px 14px;
+    background: var(--ty-bg-surface); border: 1px solid var(--ty-border-strong);
+    border-radius: var(--ty-radius-md);
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+    font-size: 13px; color: var(--ty-text-primary);
+  }
+  .cta-btn {
+    background: var(--ty-brand-bg); color: var(--ty-brand-fg);
+    text-decoration: none; padding: 7px 14px; border-radius: var(--ty-radius-sm);
+    font-weight: 600; font-size: 13px; white-space: nowrap;
+    transition: background-color .15s ease, transform .12s ease;
+  }
+  .cta-btn:hover { background: var(--ty-brand-hover); }
+  .cta-btn:active { transform: scale(0.98); }
+
+  /* 问号气泡 Tooltip */
+  .tip-wrap { position: relative; display: inline-flex; align-items: center; vertical-align: middle; flex-shrink: 0; }
+  .tip-btn {
+    width: 24px; height: 24px; padding: 0; border: none; border-radius: 999px;
+    background: transparent; color: var(--ty-text-tertiary);
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .tip-btn:hover { color: var(--ty-text-primary); background: var(--ty-bg-subtle); }
+  .tip-pop {
+    display: none; position: absolute; right: 0; top: calc(100% + 8px);
+    width: 300px; max-width: min(300px, 84vw); padding: 11px 13px; z-index: 40;
+    background: var(--ty-bg-surface); color: var(--ty-text-primary);
+    border: 1px solid var(--ty-border-strong); border-radius: var(--ty-radius-md);
+    box-shadow: var(--ty-shadow-pop); font-size: 12px; font-weight: 400; line-height: 1.6; text-align: left;
+  }
+  .tip-wrap.open .tip-pop { display: block; }
+
+  /* 卡片 */
+  .card {
+    background: var(--ty-bg-surface);
+    border: 1px solid var(--ty-border);
+    border-radius: var(--ty-radius-card);
+    box-shadow: var(--ty-shadow-card);
+    padding: 16px 18px; margin-top: 12px;
+  }
+  .card-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    margin: 0 0 12px 0; flex-wrap: wrap;
+  }
+  .card h2 {
+    margin: 0; font-size: 15px; font-weight: 600; color: var(--ty-text-primary);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+
+  /* 拖放上传区 */
+  .dropzone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    width: 100%; border: 1.5px dashed var(--ty-border-strong);
+    border-radius: var(--ty-radius-lg); padding: 20px 16px;
+    text-align: center; background: var(--ty-bg-subtle); cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .dropzone:hover, .dropzone.over { border-color: var(--ty-text-primary); background: var(--ty-bg-hover); }
+  .dropzone input { display: none; }
+  .drop-title { font-weight: 600; font-size: 14px; color: var(--ty-text-primary); }
+  .drop-sub { font-size: 12px; color: var(--ty-text-secondary); }
+
+  /* 重命名规则配置行（紧凑一行，不卡片套卡片） */
+  .rename-bar {
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--ty-border);
+    display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center;
+    font-size: 13px; color: var(--ty-text-secondary);
+  }
+  .rename-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-weight: 600; color: var(--ty-text-primary);
+  }
+  .rename-bar label.chk {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;
+  }
+  .rename-bar input[type="checkbox"] {
+    accent-color: var(--ty-brand-bg); width: 15px; height: 15px; cursor: pointer;
+  }
+  .sep-wrap { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* 工具栏与按钮阶梯 */
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--ty-border);
+  }
+  .btn-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  button.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 36px; padding: 0 14px;
+    border: 1px solid var(--ty-border-strong); background: var(--ty-bg-surface); color: var(--ty-text-primary);
+    border-radius: var(--ty-radius-sm); font-size: 13px; font-weight: 500; cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  button.btn:hover:not(:disabled) { background: var(--ty-bg-subtle); }
+  button.btn:active:not(:disabled) { transform: scale(0.98); }
+  button.btn.primary {
+    background: var(--ty-brand-bg); color: var(--ty-brand-fg); border-color: var(--ty-brand-bg); font-weight: 600;
+  }
+  button.btn.primary:hover:not(:disabled) { background: var(--ty-brand-hover); border-color: var(--ty-brand-hover); }
+  button.btn.secondary {
+    background: var(--ty-brand-soft); color: var(--ty-text-primary); border-color: transparent;
+  }
+  button.btn.secondary:hover:not(:disabled) { background: var(--ty-bg-hover); }
+  button.btn.success {
+    background: var(--ty-success-soft); color: var(--ty-success-fg); border-color: var(--ty-success-border); font-weight: 600;
+  }
+  button.btn.success:hover:not(:disabled) { filter: brightness(0.96); }
+  button.btn.sm { height: 30px; padding: 0 10px; font-size: 12px; }
+  button.btn:disabled {
+    background: var(--ty-disabled-bg); color: var(--ty-disabled-fg); border-color: transparent;
+    cursor: not-allowed;
+  }
+
+  select, input.search-input {
+    height: 32px; padding: 0 10px;
+    border: 1px solid var(--ty-border-strong); border-radius: var(--ty-radius-md);
+    font-size: 13px; background: var(--ty-bg-surface); color: var(--ty-text-primary);
+    outline: none;
+  }
+  select:focus, input.search-input:focus { border-color: var(--ty-text-primary); }
+
+  .msg-bar { font-size: 12.5px; color: var(--ty-text-secondary); font-variant-numeric: tabular-nums; }
+  .msg-bar.err { color: var(--ty-danger-fg); font-weight: 600; }
+  .msg-bar.ok { color: var(--ty-success-fg); font-weight: 600; }
+
+  /* 常驻异常拦截告警区 */
+  .blocked-box {
+    display: none; margin-top: 12px; padding: 12px 15px;
+    background: var(--ty-danger-soft); border: 1px solid var(--ty-danger-border);
+    border-radius: var(--ty-radius-lg); color: var(--ty-danger-fg);
+  }
+  .blocked-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .blocked-title {
+    display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600;
+  }
+  .blocked-list {
+    margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px;
+  }
+  .blocked-list li {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 7px 10px; border-radius: var(--ty-radius-sm);
+    background: var(--ty-bg-surface); border: 1px solid var(--ty-danger-border);
+    font-size: 12.5px; color: var(--ty-text-primary);
+  }
+  .blk-name { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .blk-reason { color: var(--ty-danger-fg); font-weight: 500; }
+
+  /* 6 格 KPI */
+  .kpis-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 12px; }
+  @media (max-width: 1024px) { .kpis-6 { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 540px) { .kpis-6 { grid-template-columns: repeat(2, 1fr); } }
+  .kpi {
+    background: var(--ty-bg-surface); border: 1px solid var(--ty-border);
+    border-radius: var(--ty-radius-lg); box-shadow: var(--ty-shadow-card);
+    padding: 12px 14px; min-width: 0;
+  }
+  .kpi .label { font-size: 12px; color: var(--ty-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpi .val {
+    font-size: 19px; font-weight: 600; margin-top: 3px;
+    font-variant-numeric: tabular-nums; color: var(--ty-text-primary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .kpi.ok .val { color: var(--ty-success-fg); }
+  .kpi.err .val { color: var(--ty-danger-fg); }
+
+  /* 勾稽校验栏 */
+  .bal-bar {
+    display: none; margin-top: 12px; padding: 10px 14px;
+    background: var(--ty-success-soft); border: 1px solid var(--ty-success-border);
+    border-radius: var(--ty-radius-md); font-size: 12.5px; color: var(--ty-success-fg);
+    font-variant-numeric: tabular-nums; line-height: 1.6;
+  }
+  .bal-bar.warn {
+    background: var(--ty-warn-soft); border-color: var(--ty-warn-border); color: var(--ty-warn-fg);
+  }
+
+  /* 筛选与搜索栏 */
+  .filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+  .ftab {
+    height: 30px; padding: 0 11px; border-radius: var(--ty-radius-sm);
+    font-size: 12px; font-weight: 500;
+    border: 1px solid var(--ty-border); background: var(--ty-bg-surface); color: var(--ty-text-secondary);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    transition: background-color .14s ease, color .14s ease;
+  }
+  .ftab:hover { color: var(--ty-text-primary); background: var(--ty-bg-subtle); }
+  .ftab.active { background: var(--ty-brand-bg); color: var(--ty-brand-fg); border-color: var(--ty-brand-bg); }
+  .ftab .cnt { font-variant-numeric: tabular-nums; opacity: 0.85; }
+
+  .search-box { margin-left: auto; position: relative; display: inline-flex; align-items: center; min-width: 248px; }
+  .search-box .ico-search { position: absolute; left: 10px; color: var(--ty-text-tertiary); pointer-events: none; display: inline-flex; }
+  .search-box input.search-input { width: 100%; height: 32px; padding-left: 32px; padding-right: 28px; }
+  .search-clear {
+    display: none; position: absolute; right: 6px; width: 20px; height: 20px; padding: 0; border: none;
+    background: transparent; color: var(--ty-text-tertiary); font-size: 15px; cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+  .search-clear:hover { color: var(--ty-text-primary); }
+
+  /* 高密度明细表（1440px 宽屏 0 横向滚动完整呈现全部核心列与改名预览） */
+  .table-wrap {
+    overflow-x: auto; max-height: 620px;
+    border: 1px solid var(--ty-border); border-radius: var(--ty-radius-md);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th, td {
+    padding: 8px 8px; border-bottom: 1px solid var(--ty-border);
+    text-align: left; white-space: nowrap; vertical-align: middle;
+  }
+  th {
+    background: var(--ty-bg-subtle); position: sticky; top: 0;
+    font-weight: 600; color: var(--ty-text-secondary); z-index: 1;
+  }
+  tbody tr:hover { background: var(--ty-bg-subtle); }
+  tbody tr.row-dup { background: var(--ty-danger-row); }
+  tbody tr.row-err { background: var(--ty-danger-row); }
+  tbody tr.row-warn { background: var(--ty-warn-row); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.empty-cell { text-align: center; color: var(--ty-text-tertiary); padding: 28px 16px; white-space: normal; }
+  td.cell-wrap { max-width: 148px; overflow: hidden; text-overflow: ellipsis; }
+  td.cell-item { max-width: 145px; }
+  td.cell-rename { max-width: 215px; }
+  td.err-cell-text { color: var(--ty-danger-fg); font-weight: 500; white-space: normal; min-width: 220px; }
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 11.5px; padding: 2px 5px; border-radius: var(--ty-radius-xs);
+    background: var(--ty-bg-subtle); color: var(--ty-text-primary);
+  }
+  code.inv-no { letter-spacing: -0.02em; }
+  code.rename-code {
+    display: block; max-width: 210px; overflow: hidden; text-overflow: ellipsis;
+  }
+  .orig-sub {
+    display: block; margin-top: 2px; font-size: 11px; color: var(--ty-text-tertiary);
+    max-width: 210px; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .status-pill {
+    display: inline-block; padding: 2px 8px; border-radius: var(--ty-radius-xs);
+    font-size: 11.5px; font-weight: 600; line-height: 1.45;
+  }
+  .st-ok { background: var(--ty-success-soft); color: var(--ty-success-fg); }
+  .st-warn { background: var(--ty-warn-soft); color: var(--ty-warn-fg); }
+  .st-err { background: var(--ty-danger-soft); color: var(--ty-danger-fg); }
+  .src-sub {
+    display: inline-block; margin-left: 5px; font-size: 11px; color: var(--ty-text-tertiary);
+    font-weight: 500;
+  }
+
+  .chip-del {
+    width: 24px; height: 24px; padding: 0; border: none; border-radius: var(--ty-radius-xs);
+    background: transparent; color: var(--ty-text-tertiary); font-size: 16px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .chip-del:hover { background: var(--ty-danger-soft); color: var(--ty-danger-fg); }
+
+  .footer-note {
+    margin-top: 16px; text-align: center; font-size: 12px; color: var(--ty-text-tertiary);
+    display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap;
+  }
+
+  @media (max-width: 640px) {
+    body { padding: 12px 10px 24px; }
+    .topbar { padding: 14px; }
+    .topbar h1 { font-size: 16.5px; }
+    .top-actions { width: 100%; }
+    .top-actions .btn { flex: 1; }
+    .card { padding: 14px; }
+    .btn-group { width: 100%; }
+    .btn-group .btn { flex: 1 1 auto; }
+    .search-box { margin-left: 0; width: 100%; min-width: 0; margin-top: 4px; }
+    .kpi .val { font-size: 16.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand-left">
+      <div class="brand-row">
+        <span class="brand-mark"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v18l2.5-1.5L9 21l3-1.5L15 21l2.5-1.5L20 21V3H4z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg></span>
+        <h1>数电票 XML/OFD 批量提取查重改名神器</h1>
+        <span class="ed-pill ">免费体验版 · 导出限前 3 张</span>
+      </div>
+      <p class="sub">100% 离线本地解析 · 零云端上传 · 自动查重标红 · 导出 3-Sheet 台账与规范重命名打包</p>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="btn secondary" id="demoBtn"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>1 秒载入示例发票</span></button>
+      <button type="button" class="btn" id="clearBtn" style="display:none;"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span>清空全部</span></button>
+    </div>
+  </header>
+
+  <div id="compatBanner" class="compat-banner">
+    当前浏览器不支持原生 <code>DecompressionStream</code>（需 Chrome/Edge 103+、Firefox 113+ 或 Safari 16.4+）。请改用新版浏览器打开以支持 .ofd 离线解压。
+  </div>
+
+  <div class="boundary-strip">
+    <span class="boundary-strip-left">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span><strong>适用范围：</strong>专注零乱码解析国标数电票 <strong>.xml</strong> 与标准 <strong>.ofd</strong>（兼容内嵌 XML 附件与纯版式流）· <strong>明确不支持拍照/扫描件 PDF 与加密文件</strong> · 建议先用免费版亲测真实发票后再买断</span>
+    </span>
+    <span class="tip-wrap"><button type="button" class="tip-btn" aria-label="说明"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.1-2.4 3.4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><span class="tip-pop">为什么不做扫描件 PDF？拍照/扫描图片极易 OCR 识别错金额和税号导致报销翻车。从电子税务局、微信卡包或开票邮件下载发票时，同时保存 .xml 或 .ofd 原文件拖入本工具，即可实现 100% 精准提取、红警查重与一键改名打包。</span></span>
+  </div>
+  
+  <div class="free-cta">
+    <span>免费体验版：已解锁全量解析、查重标红与改名预览，导出台账与打包重命名限前 <strong>3 张</strong>有效发票。先亲测您的真实数电票完全顺手再买断：</span>
+    <a class="cta-btn" id="upgradeBtn" href="https://ifdian.net/a/qingbiaotool" target="_blank" rel="noopener">获取完整买断版</a>
+  </div>
+
+  <!-- 主工作卡：批量拖入 + 重命名规则 + 导出操作 -->
+  <section class="card">
+    <label class="dropzone" id="dropZone">
+      <input type="file" id="fileInput" multiple accept=".xml,.ofd,.pdf,.jpg,.jpeg,.png">
+      <svg class="ico ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span class="drop-title">点击或批量拖入国标数电票 .xml / .ofd 文件</span>
+      <span class="drop-sub">支持一次拖入几十上百张发票 · 自动识别同号重复报销 · 误拖 PDF/损坏文件当场友好拦截</span>
+    </label>
+
+    <div class="rename-bar">
+      <span class="rename-label"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg><span>重命名规则</span><span class="tip-wrap"><button type="button" class="tip-btn" aria-label="说明"><svg class="ico ico-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.8c0 1.7-2.4 2.1-2.4 3.4"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button><span class="tip-pop">勾选需要的字段实时生成安全文件名，自动清洗 / \ : * ? " < > | 等 Windows 非法字符及 CON/PRN 保留字，重名自动追加序号，原文件字节无损打包进 .zip。</span></span></span>
+      <label class="chk"><input type="checkbox" id="rnDate" checked> 开票日期</label>
+      <label class="chk"><input type="checkbox" id="rnTotal" checked> 价税合计</label>
+      <label class="chk"><input type="checkbox" id="rnSeller" checked> 销售方</label>
+      <label class="chk"><input type="checkbox" id="rnNo" checked> 发票号码</label>
+      <label class="chk"><input type="checkbox" id="rnItem"> 项目名称</label>
+      <label class="chk"><input type="checkbox" id="rnBuyer"> 购买方</label>
+      <span class="sep-wrap">
+        <span>分隔符</span>
+        <select id="rnSep" aria-label="分隔符">
+          <option value="_">下划线 _</option>
+          <option value="-">连字符 -</option>
+        </select>
+      </span>
+      <label class="chk"><input type="checkbox" id="rnSkipDup"> 打包跳过重复票</label>
+    </div>
+
+    <div class="toolbar">
+      <div class="btn-group">
+        <button type="button" class="btn primary" id="exportXlsxBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M12 13v6"/></svg><span>导出 3-Sheet 报销台账 (.xlsx)</span></button>
+        <button type="button" class="btn success" id="exportZipBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg><span>规范重命名打包 (.zip)</span></button>
+        <button type="button" class="btn" id="exportCsvBtn" disabled><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>导出明细 (.csv)</span></button>
+      </div>
+      <span class="msg-bar" id="mainStatus">就绪 · 支持批量拖入 .xml 与 .ofd 发票</span>
+    </div>
+  </section>
+
+  <!-- 常驻异常拦截提示区（存在 PDF / 图片 / 损坏文件时直显不消失） -->
+  <section class="blocked-box" id="blockedAlertBox" role="alert">
+    <div class="blocked-head">
+      <span class="blocked-title"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>已拦截 <span class="num" id="blockedCountBadge">0</span> 份不支持格式或损坏文件（未输出乱码，不污染汇总金额）</span></span>
+      <button type="button" class="btn sm" id="clearBlockedBtn">移除异常项</button>
+    </div>
+    <ul class="blocked-list" id="blockedList"></ul>
+  </section>
+
+  <!-- 6 格核心汇总 KPI -->
+  <section class="kpis-6">
+    <div class="kpi"><div class="label">有效解析张数</div><div class="val" id="kpiValid">0</div></div>
+    <div class="kpi ok"><div class="label">去重有效张数</div><div class="val" id="kpiDedupCount">0</div></div>
+    <div class="kpi" id="kpiDupCard"><div class="label">重复发票红警</div><div class="val" id="kpiDup">0</div></div>
+    <div class="kpi" id="kpiBlockedCard"><div class="label">拦截/异常文件</div><div class="val" id="kpiBlocked">0</div></div>
+    <div class="kpi"><div class="label">全量原始合计</div><div class="val" id="kpiRawTotal">¥0.00</div></div>
+    <div class="kpi ok"><div class="label">去重有效报销总额</div><div class="val" id="kpiDedupTotal">¥0.00</div></div>
+  </section>
+
+  <!-- 勾稽校验直显条 -->
+  <div class="bal-bar" id="balanceBar"></div>
+
+  <!-- 明细核对与改名预览表 -->
+  <section class="card">
+    <div class="filter-bar" id="filterTabs">
+      <button type="button" class="ftab active" data-f="ALL">全部 <span class="cnt" id="cntAll">0</span></button>
+      <button type="button" class="ftab" data-f="DUP">重复红警 <span class="cnt" id="cntDup">0</span></button>
+      <button type="button" class="ftab" data-f="LAYOUT">版式需核对 <span class="cnt" id="cntLayout">0</span></button>
+      <button type="button" class="ftab" data-f="XML">精准XML/附件 <span class="cnt" id="cntXml">0</span></button>
+      <button type="button" class="ftab" data-f="BLOCKED">格式拦截 <span class="cnt" id="cntBlocked">0</span></button>
+      <div class="search-box">
+        <span class="ico-search"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+        <input class="search-input" id="searchBox" placeholder="搜索票号、销方、项目或文件名">
+        <button type="button" class="search-clear" id="searchClear" aria-label="清空搜索">&times;</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>提取状态</th>
+            <th>发票号码</th>
+            <th>开票日期</th>
+            <th>销售方名称</th>
+            <th>项目名称</th>
+            <th class="num">不含税金额</th>
+            <th class="num">税额</th>
+            <th class="num">价税合计</th>
+            <th>规范重命名预览 / 原文件</th>
+            <th class="num">删</th>
+          </tr>
+        </thead>
+        <tbody id="invTbody">
+          <tr><td colspan="10" class="empty-cell">请拖入国标数电票 .xml / .ofd 文件，或点击顶部「1 秒载入示例发票」立即体验</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="footer-note"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg><span>轻表效率工坊 · 纯本地单文件运行 · 零外网请求与第三方脚本 · 关闭页面即清空内存数据</span></footer>
+</div>
+
+<script>
+
+function applyInvoiceExportCap(validInvoices) {
+  const MAX_FREE_INVOICES = 3;
+  return {
+    items: validInvoices.slice(0, MAX_FREE_INVOICES),
+    capped: validInvoices.length > MAX_FREE_INVOICES,
+    totalValid: validInvoices.length,
+    limit: MAX_FREE_INVOICES
+  };
+}
+const FREE_EXCEL_NOTICE = '【免费体验版提示】以上仅导出前 3 张有效发票样本，完整买断版支持无限张数批量导出与重命名打包';
+const EXPORT_DONE_MSG = '已导出前 3 张样本（完整买断版无张数限制）';
+
+/* ============================================================================
+ * 数电票 XML/OFD 批量提取查重汇总 Excel + 自动规范重命名神器 v1.0 核心引擎
+ * 100% 离线零外网依赖 · 稳健路线 A（零乱码翻车版）
+ *
+ * 核心能力：
+ * 1. 纯前端零依赖 ZIP 解压/打包（DecompressionStream deflate-raw + CRC32 + UTF-8）
+ * 2. 精准解析中国国标数电票 .xml（全电票 EInvoice / 传统电子发票 eInvoice 多变体兼容）
+ * 3. 标准 .ofd 双路径解析：① 优先读取内嵌原始发票 XML（Attachs/original_invoice.xml 等）
+ *                        ② 无附件时按几何坐标重构 OFD.xml + Content.xml 拆散 <TextCode> 流
+ * 4. 严格格式与损坏文件拦截（PDF/图片/加密/损坏字节当场友好提示，绝不吐乱码行）
+ * 5. 重复报销红警查重 + 整数分精确计算（0.00 元勾稽平衡）
+ * 6. 自定义规则批量规范重命名打包 .zip（清洗非法字符与 Windows 保留字 CON/PRN，原字节无损）
+ * 7. 一键导出 3-Sheet 专业报销台账 .xlsx（长发票号/税号强保文本精度，绝不变科学计数法）
+ * ============================================================================ */
+
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+
+function crc32(u8) {
+  let c = 0xffffffff;
+  for (let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xff] ^ (c >>> 8);
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function xmlEsc(s) {
+  return String(s ?? '')
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\uFFFE\uFFFF]/g, '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function htmlEsc(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function colLetter(n) {
+  let s = '';
+  n += 1;
+  while (n > 0) {
+    const r = (n - 1) % 26;
+    s = String.fromCharCode(65 + r) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}
+
+/* ---------- 金额整数分运算（杜绝浮点精度漂移） ---------- */
+function parseMoneyToCents(raw) {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === 'number') {
+    return Number.isFinite(raw) ? Math.round(raw * 100) : null;
+  }
+  const s = String(raw).trim();
+  if (!s) return null;
+  if (/^\*+$|^免税$|^不征税$/i.test(s)) return 0;
+  const cleaned = s.replace(/[¥￥$,，\s元]/g, '');
+  if (!/^-?\d+(?:\.\d+)?$/.test(cleaned)) return null;
+  const num = Number(cleaned);
+  return Number.isFinite(num) ? Math.round(num * 100) : null;
+}
+
+function centsToNum(cents) {
+  return Math.round(cents) / 100;
+}
+
+function fmtCents(cents) {
+  const n = (Number(cents || 0) / 100);
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtCentsPlain(cents) {
+  return (Number(cents || 0) / 100).toFixed(2);
+}
+
+/* ---------- 日期统一格式化 YYYY-MM-DD ---------- */
+function normalizeIsoDate(raw) {
+  const s = String(raw ?? '').trim();
+  if (!s) return '';
+  let m = s.match(/(\d{4})\s*[年\-/\.]\s*(\d{1,2})\s*[月\-/\.]\s*(\d{1,2})/);
+  if (m) {
+    return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+  }
+  m = s.match(/\b(20\d{2})(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\b/);
+  if (m) {
+    return `${m[1]}-${m[2]}-${m[3]}`;
+  }
+  return s.slice(0, 10);
+}
+
+/* ---------- 二进制 ZIP 读取与打包（零外部依赖） ---------- */
+async function inflateRaw(u8) {
+  if (typeof DecompressionStream === 'undefined') {
+    throw new Error('当前浏览器不支持原生 DecompressionStream，请升级 Chrome / Edge / Safari');
+  }
+  const ds = new DecompressionStream('deflate-raw');
+  const w = ds.writable.getWriter();
+  w.write(u8);
+  w.close();
+  return new Uint8Array(await new Response(ds.readable).arrayBuffer());
+}
+
+async function unzipEntries(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  if (bytes.length < 22) throw new Error('压缩包长度不足');
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+
+  let eocd = -1;
+  for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65558); i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('未找到有效的 ZIP 目录结构');
+
+  const cdCount = view.getUint16(eocd + 10, true);
+  let ptr = view.getUint32(eocd + 16, true);
+  if (ptr >= bytes.length || cdCount === 0) throw new Error('ZIP 中央目录无效或为空');
+
+  const utf8Dec = new TextDecoder('utf-8');
+  let gbkDec = null;
+  try { gbkDec = new TextDecoder('gbk'); } catch {}
+
+  const entries = [];
+  for (let i = 0; i < cdCount; i++) {
+    if (ptr + 46 > bytes.length || view.getUint32(ptr, true) !== 0x02014b50) {
+      throw new Error('ZIP 中央目录记录损坏');
+    }
+    const flags = view.getUint16(ptr + 8, true);
+    const method = view.getUint16(ptr + 10, true);
+    const compSize = view.getUint32(ptr + 20, true);
+    const uncompSize = view.getUint32(ptr + 24, true);
+    const nameLen = view.getUint16(ptr + 28, true);
+    const extraLen = view.getUint16(ptr + 30, true);
+    const commentLen = view.getUint16(ptr + 32, true);
+    const localOffset = view.getUint32(ptr + 42, true);
+
+    const nameBytes = bytes.subarray(ptr + 46, ptr + 46 + nameLen);
+    let name = '';
+    if (flags & 0x0800) {
+      name = utf8Dec.decode(nameBytes);
+    } else {
+      try { name = new TextDecoder('utf-8', { fatal: true }).decode(nameBytes); }
+      catch { name = gbkDec ? gbkDec.decode(nameBytes) : utf8Dec.decode(nameBytes); }
+    }
+    name = name.replace(/\\/g, '/').replace(/^\/+/, '');
+    ptr += 46 + nameLen + extraLen + commentLen;
+
+    if (name.endsWith('/')) continue;
+    if (localOffset + 30 > bytes.length || view.getUint32(localOffset, true) !== 0x04034b50) {
+      throw new Error('ZIP 本地文件头损坏');
+    }
+    const lNameLen = view.getUint16(localOffset + 26, true);
+    const lExtraLen = view.getUint16(localOffset + 28, true);
+    const dataStart = localOffset + 30 + lNameLen + lExtraLen;
+    if (dataStart + compSize > bytes.length) throw new Error('ZIP 文件数据截断');
+
+    const rawSlice = bytes.subarray(dataStart, dataStart + compSize);
+    let data = null;
+    if (method === 0) {
+      data = rawSlice.slice();
+    } else if (method === 8) {
+      data = await inflateRaw(rawSlice);
+    } else {
+      throw new Error('不支持的 ZIP 压缩算法: ' + method);
+    }
+    if (uncompSize > 0 && data.length !== uncompSize) {
+      throw new Error('ZIP 解压长度与校验值不符');
+    }
+    entries.push({ name, data });
+  }
+  return entries;
+}
+
+function makeBinaryZip(entries, mimeType) {
+  const enc = new TextEncoder();
+  const localParts = [];
+  const cdParts = [];
+  let offset = 0;
+
+  for (const [name, content] of entries) {
+    const nameB = enc.encode(name);
+    const dataB = content instanceof Uint8Array ? content : enc.encode(String(content));
+    const crc = crc32(dataB);
+
+    const lh = new ArrayBuffer(30);
+    const lv = new DataView(lh);
+    lv.setUint32(0, 0x04034b50, true);
+    lv.setUint16(4, 20, true);
+    lv.setUint16(6, 0x0800, true);
+    lv.setUint16(8, 0, true);
+    lv.setUint32(14, crc, true);
+    lv.setUint32(18, dataB.length, true);
+    lv.setUint32(22, dataB.length, true);
+    lv.setUint16(26, nameB.length, true);
+    localParts.push(new Uint8Array(lh), nameB, dataB);
+
+    const cd = new ArrayBuffer(46);
+    const cv = new DataView(cd);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
+    cv.setUint16(8, 0x0800, true);
+    cv.setUint16(10, 0, true);
+    cv.setUint32(16, crc, true);
+    cv.setUint32(20, dataB.length, true);
+    cv.setUint32(24, dataB.length, true);
+    cv.setUint16(28, nameB.length, true);
+    cv.setUint32(42, offset, true);
+    cdParts.push(new Uint8Array(cd), nameB);
+
+    offset += 30 + nameB.length + dataB.length;
+  }
+
+  const cdSize = cdParts.reduce((a, b) => a + b.length, 0);
+  const eocd = new ArrayBuffer(22);
+  const ev = new DataView(eocd);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, entries.length, true);
+  ev.setUint16(10, entries.length, true);
+  ev.setUint32(12, cdSize, true);
+  ev.setUint32(16, offset, true);
+
+  const totalLen = offset + cdSize + 22;
+  const out = new Uint8Array(totalLen);
+  let pos = 0;
+  for (const p of localParts) { out.set(p, pos); pos += p.length; }
+  for (const p of cdParts) { out.set(p, pos); pos += p.length; }
+  out.set(new Uint8Array(eocd), pos);
+  return new Blob([out], { type: mimeType });
+}
+
+/* ---------- OOXML (.xlsx) 3-Sheet 生成（字符串全用 inlineStr 防科学计数法） ---------- */
+function buildSheetXml(rows) {
+  let body = '';
+  for (let r = 0; r < rows.length; r++) {
+    let cells = '';
+    const row = rows[r] || [];
+    for (let c = 0; c < row.length; c++) {
+      const v = row[c];
+      if (v === '' || v === null || v === undefined) continue;
+      const ref = colLetter(c) + (r + 1);
+      if (typeof v === 'number' && Number.isFinite(v)) {
+        cells += '<c r="' + ref + '"><v>' + v + '</v></c>';
+      } else {
+        cells += '<c r="' + ref + '" t="inlineStr"><is><t>' + xmlEsc(v) + '</t></is></c>';
+      }
+    }
+    body += '<row r="' + (r + 1) + '">' + cells + '</row>';
+  }
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>' + body + '</sheetData></worksheet>';
+}
+
+function sanitizeSheetName(raw, usedLowerSet) {
+  let s = String(raw ?? '').replace(/[\x00-\x1f\r\n\t:\\/?*\[\]]+/g, '_').replace(/^'+|'+$/g, '').trim();
+  if (!s) s = 'Sheet';
+  s = s.slice(0, 31);
+  let candidate = s;
+  let seq = 2;
+  while (usedLowerSet.has(candidate.toLowerCase())) {
+    const suffix = '_' + seq++;
+    candidate = s.slice(0, 31 - suffix.length) + suffix;
+  }
+  usedLowerSet.add(candidate.toLowerCase());
+  return candidate;
+}
+
+function buildMultiSheetXlsxBlob(sheets) {
+  const usedSheets = new Set();
+  const entries = [];
+  const ctOverrides = [];
+  const wbSheets = [];
+  const wbRels = [];
+
+  sheets.forEach((sh, i) => {
+    const id = i + 1;
+    const safeName = sanitizeSheetName(sh.name, usedSheets);
+    entries.push(['xl/worksheets/sheet' + id + '.xml', buildSheetXml(sh.rows)]);
+    ctOverrides.push('<Override PartName="/xl/worksheets/sheet' + id + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>');
+    wbSheets.push('<sheet name="' + xmlEsc(safeName) + '" sheetId="' + id + '" r:id="rId' + id + '"/>');
+    wbRels.push('<Relationship Id="rId' + id + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + id + '.xml"/>');
+  });
+
+  entries.push(['[Content_Types].xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    + '<Default Extension="xml" ContentType="application/xml"/>'
+    + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+    + ctOverrides.join('') + '</Types>']);
+
+  entries.push(['_rels/.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    + '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+    + '</Relationships>']);
+
+  entries.push(['xl/workbook.xml',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+    + '<sheets>' + wbSheets.join('') + '</sheets></workbook>']);
+
+  entries.push(['xl/_rels/workbook.xml.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + wbRels.join('') + '</Relationships>']);
+
+  return makeBinaryZip(entries, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+
+function rowsToCsvBlob(rows) {
+  const csv = '\uFEFF' + rows.map(r => r.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  return new Blob([csv], { type: 'text/csv;charset=utf-8' });
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 800);
+}
+
+/* ---------- Windows 安全文件名与保留字清洗 ---------- */
+const WIN_RESERVED = new Set([
+  'con','prn','aux','nul',
+  'com1','com2','com3','com4','com5','com6','com7','com8','com9',
+  'lpt1','lpt2','lpt3','lpt4','lpt5','lpt6','lpt7','lpt8','lpt9'
+]);
+
+function sanitizeFilenameSegment(raw) {
+  let s = String(raw ?? '')
+    .replace(/[\x00-\x1f\r\n\t/\\:*?"<>|]+/g, '_')
+    .replace(/\s+/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^[._]+|[._]+$/g, '');
+  return s;
+}
+
+function buildSafeRenamedFilename(rec, config, usedLowerSet) {
+  const ext = rec.ext || '.xml';
+  const sep = config.sep || '_';
+  const parts = [];
+
+  if (config.useDate && rec.issueDate) parts.push(sanitizeFilenameSegment(rec.issueDate));
+  if (config.useTotal) parts.push(sanitizeFilenameSegment(fmtCentsPlain(rec.totalCents) + '元'));
+  if (config.useSeller && rec.sellerName) parts.push(sanitizeFilenameSegment(rec.sellerName).slice(0, 28));
+  if (config.useInvoiceNo && rec.invoiceNo) parts.push(sanitizeFilenameSegment(rec.invoiceNo));
+  if (config.useItem && rec.itemSummary) parts.push(sanitizeFilenameSegment(rec.itemSummary).slice(0, 22));
+  if (config.useBuyer && rec.buyerName) parts.push(sanitizeFilenameSegment(rec.buyerName).slice(0, 24));
+
+  let base = parts.filter(Boolean).join(sep);
+  if (!base) {
+    base = sanitizeFilenameSegment(rec.originalName.replace(/\.[^.]+$/, '')) || '未命名发票';
+  }
+  base = base
+    .replace(/[\x00-\x1f\r\n\t/\\:*?"<>|]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^[.\s]+|[.\s]+$/g, '');
+  if (WIN_RESERVED.has(base.toLowerCase())) base = '_' + base;
+  base = base.slice(0, 100);
+
+  let candidate = base + ext;
+  let seq = 2;
+  while (usedLowerSet.has(candidate.toLowerCase())) {
+    const suffix = '_' + seq++;
+    candidate = base.slice(0, 100 - suffix.length) + suffix + ext;
+  }
+  usedLowerSet.add(candidate.toLowerCase());
+  return candidate;
+}
+
+/* ---------- 编码识别 + 魔数检测（格式拦截核心） ---------- */
+function decodeXmlBytes(u8) {
+  const headAscii = new TextDecoder('latin1').decode(u8.subarray(0, Math.min(240, u8.length)));
+  const encMatch = headAscii.match(/encoding\s*=\s*["']([^"']+)["']/i);
+  const declared = encMatch ? encMatch[1].toLowerCase() : '';
+  let text = '';
+  if (declared.includes('gb')) {
+    try { text = new TextDecoder('gb18030').decode(u8); }
+    catch { text = new TextDecoder('gbk').decode(u8); }
+  } else {
+    try { text = new TextDecoder('utf-8', { fatal: true }).decode(u8); }
+    catch {
+      try { text = new TextDecoder('gb18030').decode(u8); }
+      catch { text = new TextDecoder('utf-8').decode(u8); }
+    }
+  }
+  return text.replace(/^\uFEFF/, '');
+}
+
+function detectMagicType(u8) {
+  if (!u8 || u8.length < 4) return 'EMPTY';
+  // PDF: %PDF-
+  if (u8[0] === 0x25 && u8[1] === 0x50 && u8[2] === 0x44 && u8[3] === 0x46) return 'PDF';
+  // PNG: 89 50 4E 47
+  if (u8[0] === 0x89 && u8[1] === 0x50 && u8[2] === 0x4E && u8[3] === 0x47) return 'IMAGE';
+  // JPEG: FF D8 FF
+  if (u8[0] === 0xFF && u8[1] === 0xD8 && u8[2] === 0xFF) return 'IMAGE';
+  // GIF / BMP / WEBP
+  if (u8[0] === 0x47 && u8[1] === 0x49 && u8[2] === 0x46) return 'IMAGE';
+  if (u8[0] === 0x42 && u8[1] === 0x4D) return 'IMAGE';
+  if (u8.length >= 12 && u8[0] === 0x52 && u8[1] === 0x49 && u8[8] === 0x57 && u8[9] === 0x45) return 'IMAGE';
+  // OLE2 加密或老式 Office
+  if (u8.length >= 8 && u8[0] === 0xD0 && u8[1] === 0xCF && u8[2] === 0x11 && u8[3] === 0xE0) return 'OLE2';
+  // ZIP (PK\x03\x04 or PK\x05\x06)
+  if (u8[0] === 0x50 && u8[1] === 0x4B && (u8[2] === 0x03 || u8[2] === 0x05)) return 'ZIP';
+  return 'OTHER';
+}
+
+/* ---------- 命名空间无关 XML 解析工具 ---------- */
+function getElementsByLocalNames(root, names) {
+  const wanted = new Set(names.map(n => n.toLowerCase()));
+  const all = root.getElementsByTagName('*');
+  const out = [];
+  for (let i = 0; i < all.length; i++) {
+    const el = all[i];
+    const ln = (el.localName || el.nodeName.split(':').pop() || '').toLowerCase();
+    if (wanted.has(ln)) out.push(el);
+  }
+  return out;
+}
+
+function findFirstText(root, names) {
+  const els = getElementsByLocalNames(root, names);
+  for (const el of els) {
+    const txt = (el.textContent || '').trim();
+    if (txt) return txt;
+  }
+  return '';
+}
+
+function findChildText(container, names) {
+  if (!container) return '';
+  return findFirstText(container, names);
+}
+
+/* ---------- 解析国标数电票 XML（兼容 EInvoice / eInvoice 多变体） ---------- */
+function parseInvoiceXmlString(xmlText) {
+  const cleaned = String(xmlText || '').replace(/^\uFEFF/, '').trim();
+  if (!cleaned || !cleaned.includes('<')) return null;
+
+  const doc = new DOMParser().parseFromString(cleaned, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length > 0) return null;
+
+  const root = doc.documentElement;
+  if (!root) return null;
+
+  // 提取发票号码（兼容 20 位全电票号 & 传统电子发票号码）
+  let invoiceNo = findFirstText(doc, [
+    'InvoiceNumber', 'InvoiceNo', 'EIid', 'Fphm', 'InvoiceNum', 'Number'
+  ]).replace(/\s+/g, '');
+
+  const invoiceCode = findFirstText(doc, ['InvoiceCode', 'Fpdm']).replace(/\s+/g, '');
+  if (!invoiceNo && invoiceCode) invoiceNo = invoiceCode;
+
+  // 提取开票日期
+  const rawDate = findFirstText(doc, [
+    'IssueTime', 'IssueDate', 'RequestTime', 'Kprq', 'InvoiceDate', 'Date'
+  ]);
+  const issueDate = normalizeIsoDate(rawDate);
+
+  // 销售方信息
+  const sellerBlock = getElementsByLocalNames(doc, ['SellerInformation', 'Seller', 'SalerInformation', 'Xsf'])[0] || null;
+  const sellerName = findFirstText(doc, ['SellerName', 'SalerName', 'XsfMc'])
+    || findChildText(sellerBlock, ['Name', 'Mc']);
+  const sellerTaxId = findFirstText(doc, ['SellerIdNum', 'SellerTaxID', 'SellerTaxNo', 'SalerTaxNo', 'XsfNsrsbh'])
+    || findChildText(sellerBlock, ['IdNum', 'TaxID', 'TaxNo', 'Nsrsbh']);
+
+  // 购买方信息
+  const buyerBlock = getElementsByLocalNames(doc, ['BuyerInformation', 'Buyer', 'PurchaserInformation', 'Gmf'])[0] || null;
+  const buyerName = findFirstText(doc, ['BuyerName', 'PurchaserName', 'GmfMc'])
+    || findChildText(buyerBlock, ['Name', 'Mc']);
+  const buyerTaxId = findFirstText(doc, ['BuyerIdNum', 'BuyerTaxID', 'BuyerTaxNo', 'PurchaserTaxNo', 'GmfNsrsbh'])
+    || findChildText(buyerBlock, ['IdNum', 'TaxID', 'TaxNo', 'Nsrsbh']);
+
+  // 项目名称（收集全部明细项）
+  const itemEls = getElementsByLocalNames(doc, ['ItemName', 'GoodsName', 'Spmc', 'Xmmc', 'Item']);
+  const items = [];
+  for (const el of itemEls) {
+    // 跳过容器型 <Item>（仅取叶子文本节点）
+    if (el.children && el.children.length > 0) continue;
+    const t = (el.textContent || '').trim();
+    if (t) items.push(t);
+  }
+  const itemSummary = items.length > 1
+    ? `${items[0]} 等 ${items.length} 项`
+    : (items[0] || '');
+
+  // 金额三要素（整数分）
+  let exTaxCents = parseMoneyToCents(findFirstText(doc, [
+    'TotalAmWithoutTax', 'TaxExclusiveTotalAmount', 'AmountWithoutTax', 'Hjje', 'TotalAmountWithoutTax'
+  ]));
+  let taxCents = parseMoneyToCents(findFirstText(doc, [
+    'TotalTaxAm', 'TaxTotalAmount', 'TaxAmount', 'Hjse', 'TotalTaxAmount'
+  ]));
+  let totalCents = parseMoneyToCents(findFirstText(doc, [
+    'TotalTax-includedAmount', 'TotalTaxIncludedAmount', 'TaxInclusiveTotalAmount', 'Jshj', 'TotalAmount'
+  ]));
+
+  // 如果总计缺失但明细行存在，尝试汇总明细
+  if (exTaxCents === null) {
+    const itemAmtEls = getElementsByLocalNames(doc, ['IssuItemInformation', 'GoodsInfo']);
+    if (itemAmtEls.length) {
+      let sum = 0, hit = false;
+      for (const it of itemAmtEls) {
+        const c = parseMoneyToCents(findChildText(it, ['Amount', 'Je']));
+        if (c !== null) { sum += c; hit = true; }
+      }
+      if (hit) exTaxCents = sum;
+    }
+  }
+
+  // 三者知二推一兜底
+  if (totalCents === null && exTaxCents !== null && taxCents !== null) totalCents = exTaxCents + taxCents;
+  if (taxCents === null && totalCents !== null && exTaxCents !== null) taxCents = totalCents - exTaxCents;
+  if (exTaxCents === null && totalCents !== null && taxCents !== null) exTaxCents = totalCents - taxCents;
+
+  // 有效性门禁：必须至少有发票号，或同时具备销售方与金额（防普通非发票 XML 误入）
+  const hasInvoiceMarker = Boolean(invoiceNo) || (Boolean(sellerName) && totalCents !== null);
+  if (!hasInvoiceMarker) return null;
+
+  return {
+    invoiceNo: invoiceNo || '',
+    issueDate: issueDate || '',
+    sellerName: sellerName || '',
+    sellerTaxId: (sellerTaxId || '').replace(/\s+/g, ''),
+    buyerName: buyerName || '',
+    buyerTaxId: (buyerTaxId || '').replace(/\s+/g, ''),
+    itemSummary: itemSummary || '',
+    itemCount: items.length || (itemSummary ? 1 : 0),
+    exTaxCents: exTaxCents ?? 0,
+    taxCents: taxCents ?? 0,
+    totalCents: totalCents ?? 0
+  };
+}
+
+/* ---------- 解析 OFD 版式文本流（兼容拆散 <TextCode> 与 CustomDatas） ---------- */
+function extractCustomDataMap(ofdXmlText) {
+  const map = {};
+  if (!ofdXmlText) return map;
+  const doc = new DOMParser().parseFromString(ofdXmlText, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length > 0) return map;
+  const cds = getElementsByLocalNames(doc, ['CustomData']);
+  for (const el of cds) {
+    const name = (el.getAttribute('Name') || '').trim();
+    const val = (el.textContent || '').trim();
+    if (name && val) map[name] = val;
+  }
+  return map;
+}
+
+function parseBoundary(str) {
+  const nums = String(str || '').trim().split(/\s+/).map(Number);
+  if (nums.length >= 4 && nums.every(Number.isFinite)) {
+    return { x: nums[0], y: nums[1], w: nums[2], h: nums[3] };
+  }
+  return null;
+}
+
+function extractOfdLayoutSegments(contentXmlTexts) {
+  const segments = [];
+  let seqY = 0;
+
+  for (const xmlText of contentXmlTexts) {
+    const doc = new DOMParser().parseFromString(xmlText, 'application/xml');
+    if (doc.getElementsByTagName('parsererror').length > 0) continue;
+
+    const textObjs = getElementsByLocalNames(doc, ['TextObject']);
+    if (textObjs.length) {
+      for (const obj of textObjs) {
+        const codes = getElementsByLocalNames(obj, ['TextCode']);
+        let combined = '';
+        for (const tc of codes) combined += (tc.textContent || '');
+        combined = combined.replace(/\s+/g, ' ').trim();
+        if (!combined) continue;
+        const b = parseBoundary(obj.getAttribute('Boundary'));
+        segments.push({
+          text: combined,
+          x: b ? b.x : 0,
+          y: b ? b.y : (seqY += 5),
+          w: b ? b.w : 20,
+          h: b ? b.h : 4,
+          hasPos: Boolean(b)
+        });
+      }
+    } else {
+      // 无 TextObject 包裹时直接读取 TextCode
+      const codes = getElementsByLocalNames(doc, ['TextCode']);
+      for (const tc of codes) {
+        const t = (tc.textContent || '').trim();
+        if (t) segments.push({ text: t, x: 0, y: (seqY += 5), w: 20, h: 4, hasPos: false });
+      }
+    }
+  }
+  return segments;
+}
+
+function groupSegmentsIntoLines(segments) {
+  const sorted = [...segments].sort((a, b) => (Math.abs(a.y - b.y) <= 2.2 ? a.x - b.x : a.y - b.y));
+  const lines = [];
+  for (const seg of sorted) {
+    const last = lines[lines.length - 1];
+    if (last && Math.abs(last.y - seg.y) <= 2.2) {
+      last.items.push(seg);
+    } else {
+      lines.push({ y: seg.y, items: [seg] });
+    }
+  }
+  for (const ln of lines) {
+    ln.items.sort((a, b) => a.x - b.x);
+    let txt = '';
+    for (let i = 0; i < ln.items.length; i++) {
+      const cur = ln.items[i];
+      if (i > 0) {
+        const prev = ln.items[i - 1];
+        const gap = cur.x - (prev.x + prev.w);
+        // 拆散的同一数字/词（水平间距小）直接无缝拼接；跨栏间距大则加空格
+        const prevEndsCode = /[0-9A-Za-z¥￥.:\-：]$/.test(prev.text);
+        const curStartsCode = /^[0-9A-Za-z.元]/.test(cur.text);
+        if (gap > 4.5 && !(prevEndsCode && curStartsCode && gap < 8)) {
+          txt += ' ';
+        }
+      }
+      txt += cur.text;
+    }
+    ln.text = txt.trim();
+  }
+  return lines;
+}
+
+function parseOfdLayout(ofdXmlText, contentXmlTexts) {
+  const custom = extractCustomDataMap(ofdXmlText);
+  const segments = extractOfdLayoutSegments(contentXmlTexts);
+  const lines = groupSegmentsIntoLines(segments);
+  const fullText = lines.map(l => l.text).join('\n');
+  const flatNoSpace = fullText.replace(/[ \t]+/g, '');
+
+  if (!fullText && !Object.keys(custom).length) return null;
+
+  // 1. 发票号码
+  let invoiceNo = (custom['发票号码'] || custom['InvoiceNo'] || custom['InvoiceNumber'] || '').replace(/\s+/g, '');
+  if (!invoiceNo) {
+    const m = flatNoSpace.match(/发票号码[:：]?(\d{8,20})/);
+    if (m) invoiceNo = m[1];
+  }
+  if (!invoiceNo) {
+    const m20 = flatNoSpace.match(/(?:^|[^\d])(2\d{19})(?:[^\d]|$)/);
+    if (m20) invoiceNo = m20[1];
+  }
+
+  // 2. 开票日期
+  let issueDate = normalizeIsoDate(custom['开票日期'] || custom['IssueDate'] || '');
+  if (!issueDate) {
+    const m = fullText.match(/开票日期[:：\s]*(\d{4}\s*[年\-/\.]\s*\d{1,2}\s*[月\-/\.]\s*\d{1,2}日?)/);
+    if (m) issueDate = normalizeIsoDate(m[1]);
+  }
+  if (!issueDate) {
+    const m = fullText.match(/(\d{4}年\d{1,2}月\d{1,2}日)/);
+    if (m) issueDate = normalizeIsoDate(m[1]);
+  }
+
+  // 3. 购买方与销售方（优先 CustomData，其次按左右栏坐标分区，再兜底上下顺序）
+  let buyerName = (custom['购买方名称'] || custom['购方名称'] || '').trim();
+  let buyerTaxId = (custom['购买方纳税人识别号'] || custom['购方税号'] || '').replace(/\s+/g, '');
+  let sellerName = (custom['销售方名称'] || custom['销方名称'] || '').trim();
+  let sellerTaxId = (custom['销售方纳税人识别号'] || custom['销方税号'] || '').replace(/\s+/g, '');
+
+  // 根据坐标划分左右栏（标准 A5/210mm 宽电子发票，中线约在 x=100~110；动态取页面最大宽度的一半）
+  const positioned = segments.filter(s => s.hasPos);
+  const maxX = positioned.reduce((m, s) => Math.max(m, s.x + s.w), 0);
+  const midX = maxX > 60 ? maxX * 0.48 : 105;
+
+  const extractPartyFromLines = (partLines) => {
+    let name = '', taxId = '';
+    const joined = partLines.map(l => l.text).join('\n');
+    const nm = joined.match(/名\s*称[:：\s]*([^\n]+?)(?=[ \t]+(?:统一社会信用代码|纳税人识别号|销\s*售\s*方|购\s*买\s*方)|$)/m);
+    if (nm) name = nm[1].trim();
+    const tm = joined.match(/(?:统一社会信用代码\/纳税人识别号|纳税人识别号|识别号|税号)[:：\s]*([0-9A-Za-z]{15,20})/);
+    if (tm) taxId = tm[1].toUpperCase();
+    return { name, taxId };
+  };
+
+  if (positioned.length && (!buyerName || !sellerName || !buyerTaxId || !sellerTaxId)) {
+    const leftSegs = positioned.filter(s => s.x < midX);
+    const rightSegs = positioned.filter(s => s.x >= midX);
+    const leftText = leftSegs.map(s => s.text).join(' ');
+    const rightText = rightSegs.map(s => s.text).join(' ');
+
+    if (/购|买/.test(leftText) && /销|售/.test(rightText)) {
+      const leftInfo = extractPartyFromLines(groupSegmentsIntoLines(leftSegs));
+      const rightInfo = extractPartyFromLines(groupSegmentsIntoLines(rightSegs));
+      if (!buyerName && leftInfo.name) buyerName = leftInfo.name;
+      if (!buyerTaxId && leftInfo.taxId) buyerTaxId = leftInfo.taxId;
+      if (!sellerName && rightInfo.name) sellerName = rightInfo.name;
+      if (!sellerTaxId && rightInfo.taxId) sellerTaxId = rightInfo.taxId;
+    }
+  }
+
+  // 兜底：按顺序扫描所有「名称：」和「纳税人识别号：」
+  if (!buyerName || !sellerName) {
+    const names = [];
+    const reName = /名\s*称[:：\s]*([^\s\n：:][^:\n]{1,60}?)(?=\s+(?:名\s*称|销售方|购买方|统一社会信用代码|纳税人识别号)|$)/g;
+    let m;
+    while ((m = reName.exec(fullText)) !== null) {
+      const val = m[1].trim();
+      if (val && !/^信息$/.test(val)) names.push(val);
+    }
+    if (!buyerName && names[0]) buyerName = names[0];
+    if (!sellerName && names[1]) sellerName = names[1];
+  }
+  if (!buyerTaxId || !sellerTaxId) {
+    const taxes = [];
+    const reTax = /(?:统一社会信用代码\/纳税人识别号|纳税人识别号|税号)[:：\s]*([0-9A-Za-z]{15,20})/g;
+    let m;
+    while ((m = reTax.exec(fullText)) !== null) {
+      const v = m[1].toUpperCase();
+      if (v !== invoiceNo) taxes.push(v);
+    }
+    if (!buyerTaxId && taxes[0]) buyerTaxId = taxes[0];
+    if (!sellerTaxId && taxes[1]) sellerTaxId = taxes[1];
+  }
+
+  // 4. 项目名称（国标发票项目通常带 *大类*项目名）
+  const itemMatches = [];
+  const reItem = /\*[^*\n]{1,20}\*[^\s\n]{1,40}/g;
+  let im;
+  while ((im = reItem.exec(fullText)) !== null) {
+    itemMatches.push(im[0].trim());
+  }
+  const itemSummary = itemMatches.length > 1
+    ? `${itemMatches[0]} 等 ${itemMatches.length} 项`
+    : (itemMatches[0] || (custom['货物或应税劳务、服务名称'] || custom['项目名称'] || ''));
+
+  // 5. 金额三要素（优先 CustomData，其次「小写」「合计」语义行 + 会计恒等式验证）
+  let exTaxCents = parseMoneyToCents(custom['合计金额'] || custom['金额']);
+  let taxCents = parseMoneyToCents(custom['合计税额'] || custom['税额']);
+  let totalCents = parseMoneyToCents(custom['价税合计'] || custom['价税合计(小写)']);
+
+  if (totalCents === null) {
+    const mLower = fullText.match(/[（(]?\s*小\s*写\s*[）)]?[:：\s]*[¥￥]?\s*([0-9,]+\.\d{2})/);
+    if (mLower) totalCents = parseMoneyToCents(mLower[1]);
+  }
+  if (totalCents === null) {
+    const mJshj = fullText.match(/价税合计[^\n]*?[¥￥]\s*([0-9,]+\.\d{2})/);
+    if (mJshj) totalCents = parseMoneyToCents(mJshj[1]);
+  }
+
+  if (exTaxCents === null || taxCents === null) {
+    for (const ln of lines) {
+      if (/合\s*计/.test(ln.text) && !/价税合计/.test(ln.text)) {
+        const nums = [...ln.text.matchAll(/[¥￥]?\s*(-?[0-9,]+\.\d{2})/g)].map(m => parseMoneyToCents(m[1])).filter(v => v !== null);
+        if (nums.length >= 2) {
+          if (exTaxCents === null) exTaxCents = nums[0];
+          if (taxCents === null) taxCents = nums[1];
+          break;
+        } else if (nums.length === 1 && /\*{2,}|免税/.test(ln.text)) {
+          if (exTaxCents === null) exTaxCents = nums[0];
+          if (taxCents === null) taxCents = 0;
+          break;
+        }
+      }
+    }
+  }
+
+  // 兜底：若找到价税合计但未命中合计行，从所有 ¥ 金额中按 a + b = totalCents 反推
+  if (totalCents !== null && (exTaxCents === null || taxCents === null)) {
+    const allMoney = [...fullText.matchAll(/[¥￥]\s*([0-9,]+\.\d{2})/g)].map(m => parseMoneyToCents(m[1])).filter(v => v !== null);
+    outer: for (let i = 0; i < allMoney.length; i++) {
+      for (let j = i + 1; j < allMoney.length; j++) {
+        if (Math.abs((allMoney[i] + allMoney[j]) - totalCents) <= 1) {
+          exTaxCents = Math.max(allMoney[i], allMoney[j]);
+          taxCents = Math.min(allMoney[i], allMoney[j]);
+          break outer;
+        }
+      }
+    }
+  }
+
+  if (totalCents === null && exTaxCents !== null && taxCents !== null) totalCents = exTaxCents + taxCents;
+  if (taxCents === null && totalCents !== null && exTaxCents !== null) taxCents = totalCents - exTaxCents;
+  if (exTaxCents === null && totalCents !== null && taxCents !== null) exTaxCents = totalCents - taxCents;
+
+  if (!invoiceNo && totalCents === null) return null;
+
+  return {
+    invoiceNo: invoiceNo || '',
+    issueDate: issueDate || '',
+    sellerName: sellerName || '',
+    sellerTaxId: sellerTaxId || '',
+    buyerName: buyerName || '',
+    buyerTaxId: buyerTaxId || '',
+    itemSummary: itemSummary || '',
+    itemCount: itemMatches.length || (itemSummary ? 1 : 0),
+    exTaxCents: exTaxCents ?? 0,
+    taxCents: taxCents ?? 0,
+    totalCents: totalCents ?? 0
+  };
+}
+
+/* ---------- 统一单文件解析入口（XML / OFD / 严格格式拦截） ---------- */
+async function parseInvoiceFile(fileName, arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  const lower = String(fileName || '').toLowerCase();
+  const magic = detectMagicType(bytes);
+
+  const makeBlocked = (code, reason) => ({
+    id: 'inv_' + (++state.seq),
+    ok: false,
+    originalName: fileName,
+    ext: lower.includes('.') ? lower.slice(lower.lastIndexOf('.')) : '',
+    rawBytes: bytes,
+    sourceKind: code, // 'BLOCKED_FORMAT' | 'BLOCKED_CORRUPT'
+    statusLabel: code === 'BLOCKED_FORMAT' ? '不支持格式拦截' : '损坏或无效文件',
+    errorReason: reason,
+    invoiceNo: '', issueDate: '', sellerName: '', sellerTaxId: '',
+    buyerName: '', buyerTaxId: '', itemSummary: '', itemCount: 0,
+    exTaxCents: 0, taxCents: 0, totalCents: 0,
+    isDup: false, dupRole: ''
+  });
+
+  // 1. 显式拦截 PDF / 拍照图片 / 加密文件
+  if (lower.endsWith('.pdf') || magic === 'PDF') {
+    return makeBlocked('BLOCKED_FORMAT', '请从电子税务局/开票平台下载同套 XML 或 OFD 文件，暂不支持扫描件 PDF');
+  }
+  if (/\.(jpg|jpeg|png|bmp|gif|webp|heic|tif|tiff)$/i.test(lower) || magic === 'IMAGE') {
+    return makeBlocked('BLOCKED_FORMAT', '暂不支持拍照/截图图片识别，请从电子税务局/开票平台下载同套 XML 或 OFD 原文件');
+  }
+  if (magic === 'OLE2' || /\.(xls|xlsx|doc|docx|zip|rar|7z)$/i.test(lower)) {
+    return makeBlocked('BLOCKED_FORMAT', '仅支持国标数电票 .xml 与标准 .ofd 文件，不支持办公表格、加密或普通压缩包');
+  }
+  if (bytes.length < 16) {
+    return makeBlocked('BLOCKED_CORRUPT', '文件内容为空或字节损坏，请重新下载原发票文件');
+  }
+
+  // 2. 解析 .xml
+  if (lower.endsWith('.xml')) {
+    if (magic === 'ZIP') {
+      return makeBlocked('BLOCKED_CORRUPT', '文件扩展名为 .xml 但内容为压缩包格式，请核对文件是否改错后缀');
+    }
+    const xmlText = decodeXmlBytes(bytes);
+    const parsed = parseInvoiceXmlString(xmlText);
+    if (!parsed) {
+      return makeBlocked('BLOCKED_CORRUPT', 'XML 语法损坏或非标准数电票 XML 结构，已拦截避免输出空乱码行');
+    }
+    return {
+      id: 'inv_' + (++state.seq),
+      ok: true,
+      originalName: fileName,
+      ext: '.xml',
+      rawBytes: bytes,
+      sourceKind: 'XML',
+      statusLabel: '精准XML',
+      errorReason: '',
+      ...parsed,
+      isDup: false,
+      dupRole: ''
+    };
+  }
+
+  // 3. 解析 .ofd
+  if (lower.endsWith('.ofd')) {
+    let entries = null;
+    try {
+      entries = await unzipEntries(arrayBuffer);
+    } catch (e) {
+      return makeBlocked('BLOCKED_CORRUPT', 'OFD 压缩结构损坏或非标准 OFD 文件（' + (e && e.message ? e.message : '解压失败') + '）');
+    }
+
+    const xmlEntries = entries.filter(e => e.name.toLowerCase().endsWith('.xml'));
+    if (!xmlEntries.length) {
+      return makeBlocked('BLOCKED_CORRUPT', 'OFD 文件内未检测到任何 XML 结构，文件可能已损坏或被加密');
+    }
+
+    // 路径 ①：优先寻找内嵌原始发票 XML（Attachs/original_invoice.xml 或含 EInvoice 特征的附件 XML）
+    const attachCandidates = [];
+    for (const ent of xmlEntries) {
+      const nl = ent.name.toLowerCase();
+      if (nl === 'ofd.xml' || nl.endsWith('/document.xml') || nl.endsWith('/documentres.xml') || nl.endsWith('/publicres.xml') || nl.endsWith('/attachments.xml') || nl.endsWith('/signatures.xml') || nl.endsWith('/signature.xml')) {
+        continue;
+      }
+      const isPreferred = nl.includes('original_invoice') || nl.includes('attachs/') || nl.includes('invoice');
+      attachCandidates.push({ ent, priority: isPreferred ? 0 : 1 });
+    }
+    attachCandidates.sort((a, b) => a.priority - b.priority);
+
+    for (const cand of attachCandidates) {
+      const nl = cand.ent.name.toLowerCase();
+      // 跳过纯版式 Content.xml（留给路径 ②）
+      if (nl.endsWith('/content.xml') || nl === 'content.xml') continue;
+      const txt = decodeXmlBytes(cand.ent.data);
+      if (/<(?:[a-z0-9_]+:)?(?:EInvoice|eInvoice|InvoiceNumber|InvoiceNo|SellerInformation|TotalTax-includedAmount)\b/i.test(txt)) {
+        const parsed = parseInvoiceXmlString(txt);
+        if (parsed) {
+          return {
+            id: 'inv_' + (++state.seq),
+            ok: true,
+            originalName: fileName,
+            ext: '.ofd',
+            rawBytes: bytes,
+            sourceKind: 'OFD_ATTACH_XML',
+            statusLabel: 'OFD附件XML',
+            errorReason: '',
+            ...parsed,
+            isDup: false,
+            dupRole: ''
+          };
+        }
+      }
+    }
+
+    // 路径 ②：无内嵌 XML 附件时，读取 OFD.xml + Pages/**/Content.xml 版式文本流
+    const ofdRootEnt = xmlEntries.find(e => e.name.toLowerCase() === 'ofd.xml');
+    const contentEnts = xmlEntries
+      .filter(e => /(?:^|\/)pages\/.*content\.xml$/i.test(e.name) || /(?:^|\/)content\.xml$/i.test(e.name))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    const ofdRootTxt = ofdRootEnt ? decodeXmlBytes(ofdRootEnt.data) : '';
+    const contentTxts = contentEnts.map(e => decodeXmlBytes(e.data));
+
+    if (!ofdRootTxt && !contentTxts.length) {
+      return makeBlocked('BLOCKED_CORRUPT', '该文件虽为 ZIP 容器，但缺少标准 OFD.xml 或页面版式 Content.xml');
+    }
+
+    const layoutParsed = parseOfdLayout(ofdRootTxt, contentTxts);
+    if (!layoutParsed) {
+      return makeBlocked('BLOCKED_CORRUPT', '未能从 OFD 版式流提取到有效发票字段（可能为图片型/非发票 OFD）');
+    }
+
+    return {
+      id: 'inv_' + (++state.seq),
+      ok: true,
+      originalName: fileName,
+      ext: '.ofd',
+      rawBytes: bytes,
+      sourceKind: 'OFD_LAYOUT',
+      statusLabel: 'OFD版式提取，建议核对',
+      errorReason: '',
+      ...layoutParsed,
+      isDup: false,
+      dupRole: ''
+    };
+  }
+
+  return makeBlocked('BLOCKED_FORMAT', '仅支持国标数电票 .xml 与标准 .ofd 文件，不支持当前扩展名');
+}
+
+/* ============================================================================
+ * 应用状态、查重勾稽重算、筛选搜索与 DOM 渲染
+ * ============================================================================ */
+const state = {
+  seq: 0,
+  records: [],     // 全部导入记录（含有效与拦截，保留导入顺序）
+  summary: null,   // 重算后的汇总指标
+  filter: 'ALL',
+  search: ''
+};
+
+function getRenameConfig() {
+  return {
+    useDate: document.getElementById('rnDate').checked,
+    useTotal: document.getElementById('rnTotal').checked,
+    useSeller: document.getElementById('rnSeller').checked,
+    useInvoiceNo: document.getElementById('rnNo').checked,
+    useItem: document.getElementById('rnItem').checked,
+    useBuyer: document.getElementById('rnBuyer').checked,
+    sep: document.getElementById('rnSep').value || '_',
+    skipDupOnZip: document.getElementById('rnSkipDup').checked
+  };
+}
+
+function recomputeAll() {
+  const validRecs = state.records.filter(r => r.ok);
+  const blockedRecs = state.records.filter(r => !r.ok);
+
+  // 1. 统计相同发票号码频次
+  const noCounts = new Map();
+  for (const r of validRecs) {
+    const k = (r.invoiceNo || '').trim();
+    if (k) noCounts.set(k, (noCounts.get(k) || 0) + 1);
+  }
+
+  const seenFirst = new Set();
+  let rawExTaxCents = 0, rawTaxCents = 0, rawTotalCents = 0;
+  let dedupExTaxCents = 0, dedupTaxCents = 0, dedupTotalCents = 0;
+  let dupTotalRecords = 0, dupExcessCount = 0;
+  let dupAllAmountCents = 0, dupExcessCents = 0;
+  let layoutWarnCount = 0;
+
+  for (const r of validRecs) {
+    const k = (r.invoiceNo || '').trim();
+    const isDup = Boolean(k && noCounts.get(k) > 1);
+    r.isDup = isDup;
+    r.dupRole = '';
+
+    rawExTaxCents += r.exTaxCents;
+    rawTaxCents += r.taxCents;
+    rawTotalCents += r.totalCents;
+
+    if (r.sourceKind === 'OFD_LAYOUT') layoutWarnCount++;
+
+    if (isDup) {
+      dupTotalRecords++;
+      dupAllAmountCents += r.totalCents;
+      if (!seenFirst.has(k)) {
+        seenFirst.add(k);
+        r.dupRole = '首次保留（存在重复票）';
+        dedupExTaxCents += r.exTaxCents;
+        dedupTaxCents += r.taxCents;
+        dedupTotalCents += r.totalCents;
+      } else {
+        dupExcessCount++;
+        dupExcessCents += r.totalCents;
+        r.dupRole = '重复多报（已从有效合计剔除）';
+      }
+    } else {
+      dedupExTaxCents += r.exTaxCents;
+      dedupTaxCents += r.taxCents;
+      dedupTotalCents += r.totalCents;
+    }
+  }
+
+  // 2. 刷新安全重命名预览（仅对有效发票生成，并防重名）
+  const cfg = getRenameConfig();
+  const usedNames = new Set();
+  for (const r of state.records) {
+    if (!r.ok) {
+      r.renamedName = '—';
+    } else if (cfg.skipDupOnZip && r.dupRole.startsWith('重复多报')) {
+      r.renamedName = '（打包跳过重复票）';
+    } else {
+      r.renamedName = buildSafeRenamedFilename(r, cfg, usedNames);
+    }
+  }
+
+  // 3. 勾稽差额校验（恒等式 1：全量原始合计 - 去重有效合计 - 重复多报剔除 = 0）
+  const dedupBalanceGapCents = rawTotalCents - dedupTotalCents - dupExcessCents;
+  // 恒等式 2：去重不含税 + 去重税额 - 去重价税合计
+  const taxBalanceGapCents = (dedupExTaxCents + dedupTaxCents) - dedupTotalCents;
+
+  state.summary = {
+    totalFiles: state.records.length,
+    validCount: validRecs.length,
+    blockedCount: blockedRecs.length,
+    dupTotalRecords,
+    dupExcessCount,
+    dedupCount: validRecs.length - dupExcessCount,
+    layoutWarnCount,
+    rawExTaxCents, rawTaxCents, rawTotalCents,
+    dedupExTaxCents, dedupTaxCents, dedupTotalCents,
+    dupAllAmountCents, dupExcessCents,
+    dedupBalanceGapCents,
+    taxBalanceGapCents
+  };
+
+  renderUI();
+}
+
+function getStatusBadgeHtml(r) {
+  if (!r.ok) {
+    return '<span class="status-pill st-err">' + htmlEsc(r.statusLabel) + '</span>';
+  }
+  if (r.isDup) {
+    const srcTag = r.sourceKind === 'XML' ? 'XML' : (r.sourceKind === 'OFD_ATTACH_XML' ? 'OFD附件' : 'OFD版式');
+    return '<span class="status-pill st-err">重复发票</span><span class="src-sub">' + srcTag + '</span>';
+  }
+  if (r.sourceKind === 'XML') {
+    return '<span class="status-pill st-ok">精准XML</span>';
+  }
+  if (r.sourceKind === 'OFD_ATTACH_XML') {
+    return '<span class="status-pill st-ok">OFD附件XML</span>';
+  }
+  return '<span class="status-pill st-warn">OFD版式提取，建议核对</span>';
+}
+
+function renderUI() {
+  const s = state.summary;
+  const hasAny = state.records.length > 0;
+  const hasValid = s.validCount > 0;
+
+  document.getElementById('clearBtn').style.display = hasAny ? 'inline-flex' : 'none';
+  document.getElementById('exportXlsxBtn').disabled = !hasAny;
+  document.getElementById('exportZipBtn').disabled = !hasValid;
+  document.getElementById('exportCsvBtn').disabled = !hasValid;
+
+  // KPI 数值更新（仅当异常计数 > 0 时动态红警，为 0 时保持平静中性）
+  document.getElementById('kpiValid').textContent = String(s.validCount);
+  document.getElementById('kpiDedupCount').textContent = String(s.dedupCount);
+  document.getElementById('kpiDup').textContent = String(s.dupTotalRecords);
+  document.getElementById('kpiBlocked').textContent = String(s.blockedCount);
+  document.getElementById('kpiDupCard').classList.toggle('err', s.dupTotalRecords > 0);
+  document.getElementById('kpiBlockedCard').classList.toggle('err', s.blockedCount > 0);
+  document.getElementById('kpiRawTotal').textContent = '¥' + fmtCents(s.rawTotalCents);
+  document.getElementById('kpiDedupTotal').textContent = '¥' + fmtCents(s.dedupTotalCents);
+
+  // 重复告警与勾稽栏
+  const balEl = document.getElementById('balanceBar');
+  if (hasValid) {
+    balEl.style.display = 'flex';
+    const dupPart = s.dupExcessCount > 0
+      ? ' · 重复多报剔除 <strong>¥' + fmtCents(s.dupExcessCents) + '</strong>（涉及重复票 ' + s.dupTotalRecords + ' 张 / 共 ¥' + fmtCents(s.dupAllAmountCents) + '）'
+      : ' · 未发现重复报销发票';
+    balEl.className = s.dupExcessCount > 0 ? 'bal-bar warn' : 'bal-bar';
+    balEl.innerHTML =
+      '<span>全量原始合计 <strong>¥' + fmtCents(s.rawTotalCents) + '</strong>'
+      + ' = 去重有效报销 <strong>¥' + fmtCents(s.dedupTotalCents) + '</strong>'
+      + '（不含税 ¥' + fmtCents(s.dedupExTaxCents) + ' + 税额 ¥' + fmtCents(s.dedupTaxCents) + '）'
+      + dupPart
+      + ' · 勾稽差额 <strong>' + fmtCentsPlain(s.dedupBalanceGapCents) + ' 元</strong></span>';
+  } else {
+    balEl.style.display = 'none';
+  }
+
+  // 常驻拦截告警区（PDF / 图片 / 损坏文件直显，绝不自动消失）
+  const blockedRecs = state.records.filter(r => !r.ok);
+  const blockBox = document.getElementById('blockedAlertBox');
+  if (blockedRecs.length) {
+    blockBox.style.display = 'block';
+    document.getElementById('blockedCountBadge').textContent = String(blockedRecs.length);
+    document.getElementById('blockedList').innerHTML = blockedRecs.map(r =>
+      '<li><span class="blk-name"><code>' + htmlEsc(r.originalName) + '</code><span class="status-pill st-err">' + htmlEsc(r.statusLabel) + '</span></span>'
+      + '<span class="blk-reason">' + htmlEsc(r.errorReason) + '</span></li>'
+    ).join('');
+  } else {
+    blockBox.style.display = 'none';
+  }
+
+  // 更新筛选计数
+  document.getElementById('cntAll').textContent = String(state.records.length);
+  document.getElementById('cntDup').textContent = String(s.dupTotalRecords);
+  document.getElementById('cntLayout').textContent = String(s.layoutWarnCount);
+  document.getElementById('cntXml').textContent = String(state.records.filter(r => r.ok && !r.isDup && (r.sourceKind === 'XML' || r.sourceKind === 'OFD_ATTACH_XML')).length);
+  document.getElementById('cntBlocked').textContent = String(s.blockedCount);
+
+  // 过滤 + 搜索渲染明细表
+  const q = state.search.trim().toLowerCase();
+  const filtered = state.records.filter(r => {
+    if (state.filter === 'DUP' && !r.isDup) return false;
+    if (state.filter === 'LAYOUT' && !(r.ok && r.sourceKind === 'OFD_LAYOUT')) return false;
+    if (state.filter === 'XML' && !(r.ok && (r.sourceKind === 'XML' || r.sourceKind === 'OFD_ATTACH_XML'))) return false;
+    if (state.filter === 'BLOCKED' && r.ok) return false;
+    if (q) {
+      const hay = [
+        r.originalName, r.invoiceNo, r.issueDate, r.sellerName, r.sellerTaxId,
+        r.buyerName, r.buyerTaxId, r.itemSummary, r.renamedName, r.errorReason
+      ].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const tbody = document.getElementById('invTbody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-cell">'
+      + (hasAny ? '当前筛选条件下无匹配发票记录' : '请拖入国标数电票 .xml / .ofd 文件，或点击顶部「1 秒载入示例发票」立即体验')
+      + '</td></tr>';
+  } else {
+    tbody.innerHTML = filtered.map(r => {
+      const rowCls = !r.ok ? 'row-err' : (r.isDup ? 'row-dup' : (r.sourceKind === 'OFD_LAYOUT' ? 'row-warn' : ''));
+      if (!r.ok) {
+        return '<tr class="' + rowCls + '">'
+          + '<td>' + getStatusBadgeHtml(r) + '</td>'
+          + '<td colspan="7" class="err-cell-text">' + htmlEsc(r.errorReason) + '</td>'
+          + '<td class="cell-rename"><span class="orig-sub" title="' + htmlEsc(r.originalName) + '">原：' + htmlEsc(r.originalName) + '</span></td>'
+          + '<td class="num"><button type="button" class="chip-del" data-del-id="' + r.id + '" aria-label="移除">&times;</button></td>'
+          + '</tr>';
+      }
+      return '<tr class="' + rowCls + '">'
+        + '<td>' + getStatusBadgeHtml(r) + '</td>'
+        + '<td><code class="num inv-no">' + htmlEsc(r.invoiceNo || '—') + '</code></td>'
+        + '<td class="num">' + htmlEsc(r.issueDate || '—') + '</td>'
+        + '<td class="cell-wrap" title="' + htmlEsc(r.sellerName + (r.sellerTaxId ? ' · ' + r.sellerTaxId : '')) + '">' + htmlEsc(r.sellerName || '—') + '</td>'
+        + '<td class="cell-wrap cell-item" title="' + htmlEsc(r.itemSummary) + '">' + htmlEsc(r.itemSummary || '—') + '</td>'
+        + '<td class="num">' + fmtCents(r.exTaxCents) + '</td>'
+        + '<td class="num">' + fmtCents(r.taxCents) + '</td>'
+        + '<td class="num strong">' + fmtCents(r.totalCents) + '</td>'
+        + '<td class="cell-rename"><code class="rename-code" title="' + htmlEsc(r.renamedName) + '">' + htmlEsc(r.renamedName) + '</code><span class="orig-sub" title="' + htmlEsc(r.originalName) + '">原：' + htmlEsc(r.originalName) + '</span></td>'
+        + '<td class="num"><button type="button" class="chip-del" data-del-id="' + r.id + '" aria-label="移除">&times;</button></td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  // 主状态栏文案
+  const stEl = document.getElementById('mainStatus');
+  if (!hasAny) {
+    stEl.className = 'msg-bar';
+    stEl.textContent = '就绪 · 支持批量拖入 .xml 与 .ofd 发票';
+  } else if (s.blockedCount > 0 && s.validCount === 0) {
+    stEl.className = 'msg-bar err';
+    stEl.textContent = '已拦截 ' + s.blockedCount + ' 份不支持或损坏文件，未输出乱码行';
+  } else if (s.dupTotalRecords > 0 || s.blockedCount > 0) {
+    stEl.className = 'msg-bar err';
+    stEl.textContent = '解析成功 ' + s.validCount + ' 张'
+      + (s.dupTotalRecords > 0 ? ' · 标红重复票 ' + s.dupTotalRecords + ' 张' : '')
+      + (s.blockedCount > 0 ? ' · 拦截异常 ' + s.blockedCount + ' 份' : '');
+  } else {
+    stEl.className = 'msg-bar ok';
+    stEl.textContent = '解析完成：共 ' + s.validCount + ' 张有效发票 · 有效报销总额 ¥' + fmtCents(s.dedupTotalCents);
+  }
+}
+
+/* ============================================================================
+ * 导出引擎：3-Sheet 报销台账 .xlsx + 规范重命名打包 .zip + 明细 .csv
+ * ============================================================================ */
+function buildInvoiceExcelBlob() {
+  const validAll = state.records.filter(r => r.ok);
+  const blockedAll = state.records.filter(r => !r.ok);
+  const cap = applyInvoiceExportCap(validAll);
+  const exportValid = cap.items;
+
+  // 重新针对导出子集计算勾稽指标（保证免费版/完整版 Sheet 1 与 Sheet 3 内部完全自洽！）
+  const noCount = new Map();
+  for (const r of exportValid) {
+    const k = (r.invoiceNo || '').trim();
+    if (k) noCount.set(k, (noCount.get(k) || 0) + 1);
+  }
+  const seen = new Set();
+  let rawEx = 0, rawTax = 0, rawTot = 0;
+  let dedEx = 0, dedTax = 0, dedTot = 0;
+  let dupRecCnt = 0, dupExCnt = 0, dupExCents = 0;
+
+  const detailHeaders = [
+    '序号', '解析状态', '重复标记', '发票号码', '开票日期',
+    '销售方名称', '销售方税号', '购买方名称', '购买方税号',
+    '项目名称', '不含税金额', '税额', '价税合计', '原文件名', '规范重命名预览'
+  ];
+  const detailRows = [detailHeaders];
+  const alertRows = [
+    ['原文件名', '异常类型', '发票号码', '开票日期', '销售方名称', '价税合计', '说明与处理建议']
+  ];
+
+  exportValid.forEach((r, idx) => {
+    const k = (r.invoiceNo || '').trim();
+    const isDupInExport = Boolean(k && noCount.get(k) > 1);
+    let dupMark = '正常';
+    rawEx += r.exTaxCents;
+    rawTax += r.taxCents;
+    rawTot += r.totalCents;
+
+    if (isDupInExport) {
+      dupRecCnt++;
+      if (!seen.has(k)) {
+        seen.add(k);
+        dupMark = '重复发票（首次保留）';
+        dedEx += r.exTaxCents;
+        dedTax += r.taxCents;
+        dedTot += r.totalCents;
+      } else {
+        dupExCnt++;
+        dupExCents += r.totalCents;
+        dupMark = '重复发票（多报剔除）';
+      }
+      alertRows.push([
+        r.originalName, '重复报销发票', String(r.invoiceNo), String(r.issueDate),
+        r.sellerName, centsToNum(r.totalCents),
+        dupMark + '，请核对报销人是否重复提交'
+      ]);
+    } else {
+      dedEx += r.exTaxCents;
+      dedTax += r.taxCents;
+      dedTot += r.totalCents;
+    }
+
+    if (r.sourceKind === 'OFD_LAYOUT') {
+      alertRows.push([
+        r.originalName, 'OFD版式提取提醒', String(r.invoiceNo), String(r.issueDate),
+        r.sellerName, centsToNum(r.totalCents),
+        '该 OFD 未附带原始 XML，已从版式文本流提取，入账前建议核对关键金额与抬头'
+      ]);
+    }
+
+    // 发票号码/税号/日期强制转 String 写入 inlineStr，杜绝科学计数法截断
+    detailRows.push([
+      idx + 1,
+      r.statusLabel,
+      dupMark,
+      String(r.invoiceNo || ''),
+      String(r.issueDate || ''),
+      String(r.sellerName || ''),
+      String(r.sellerTaxId || ''),
+      String(r.buyerName || ''),
+      String(r.buyerTaxId || ''),
+      String(r.itemSummary || ''),
+      centsToNum(r.exTaxCents),
+      centsToNum(r.taxCents),
+      centsToNum(r.totalCents),
+      String(r.originalName || ''),
+      String(r.renamedName || '')
+    ]);
+  });
+
+  if (cap.capped) {
+    const noticeRow = new Array(detailHeaders.length).fill('');
+    noticeRow[0] = FREE_EXCEL_NOTICE;
+    detailRows.push(noticeRow);
+  }
+
+  for (const b of blockedAll) {
+    alertRows.push([
+      b.originalName, b.statusLabel, '', '', '', '', b.errorReason
+    ]);
+  }
+  if (alertRows.length === 1) {
+    alertRows.push(['—', '全部正常', '', '', '', '', '本次核验未发现重复发票、OFD版式提醒或格式拦截异常']);
+  }
+
+  const gapCents = rawTot - dedTot - dupExCents;
+  const summaryRows = [
+    ['报销核验指标', '数值', '说明'],
+    ['导出有效发票张数', exportValid.length, cap.capped ? ('免费体验版硬限导出前 ' + cap.limit + ' 张（原导入共 ' + cap.totalValid + ' 张有效票）') : '全量导出'],
+    ['去重后有效报销张数', exportValid.length - dupExCnt, '同发票号码仅计 1 张'],
+    ['重复发票涉及张数', dupRecCnt, '其中重复多报剔除 ' + dupExCnt + ' 张'],
+    ['拦截/异常文件数', blockedAll.length, 'PDF/图片/损坏文件均已拦截，不污染汇总'],
+    ['全量原始不含税合计', centsToNum(rawEx), '含重复票的原始不含税总额'],
+    ['全量原始税额合计', centsToNum(rawTax), '含重复票的原始税额总额'],
+    ['全量原始价税合计', centsToNum(rawTot), '含重复票的原始价税合计'],
+    ['重复多报剔除金额', centsToNum(dupExCents), '自动扣除重复提交的价税合计'],
+    ['去重后有效不含税合计', centsToNum(dedEx), '实际可入账不含税总额'],
+    ['去重后有效税额合计', centsToNum(dedTax), '实际可入账税额总额'],
+    ['去重后有效报销总额', centsToNum(dedTot), '实际应报销价税合计'],
+    ['总账勾稽差额', centsToNum(gapCents), '全量原始合计 - 去重有效总额 - 重复剔除 = 0.00']
+  ];
+  if (cap.capped) {
+    summaryRows.push(['版本提示', FREE_EXCEL_NOTICE, '升级完整买断版即解锁无限张数导出']);
+  }
+
+  return buildMultiSheetXlsxBlob([
+    { name: '报销汇总总览', rows: summaryRows },
+    { name: '重复及异常清单', rows: alertRows },
+    { name: '全部发票明细', rows: detailRows }
+  ]);
+}
+
+function buildRenamedZipBlob() {
+  const cfg = getRenameConfig();
+  let targets = state.records.filter(r => r.ok);
+  if (cfg.skipDupOnZip) {
+    targets = targets.filter(r => !r.dupRole.startsWith('重复多报'));
+  }
+  const cap = applyInvoiceExportCap(targets);
+  const usedNames = new Set();
+  const entries = [];
+
+  for (const r of cap.items) {
+    const safeName = buildSafeRenamedFilename(r, cfg, usedNames);
+    // 原封不动保留原始文件二进制字节
+    entries.push([safeName, r.rawBytes]);
+  }
+  return makeBinaryZip(entries, 'application/zip');
+}
+
+function buildInvoiceCsvBlob() {
+  const validAll = state.records.filter(r => r.ok);
+  const cap = applyInvoiceExportCap(validAll);
+  const headers = ['解析状态', '重复标记', '发票号码', '开票日期', '销售方名称', '销售方税号', '购买方名称', '购买方税号', '项目名称', '不含税金额', '税额', '价税合计', '原文件名', '规范重命名预览'];
+  const rows = [headers];
+  for (const r of cap.items) {
+    rows.push([
+      r.statusLabel,
+      r.isDup ? (r.dupRole || '重复发票') : '正常',
+      r.invoiceNo,
+      r.issueDate,
+      r.sellerName,
+      r.sellerTaxId,
+      r.buyerName,
+      r.buyerTaxId,
+      r.itemSummary,
+      fmtCentsPlain(r.exTaxCents),
+      fmtCentsPlain(r.taxCents),
+      fmtCentsPlain(r.totalCents),
+      r.originalName,
+      r.renamedName
+    ]);
+  }
+  if (cap.capped) rows.push([FREE_EXCEL_NOTICE]);
+  return rowsToCsvBlob(rows);
+}
+
+/* ============================================================================
+ * 1 秒载入示例发票（真实构造国标 XML + 标准 OFD 字节，完整走真解析管道！）
+ * ============================================================================ */
+async function loadDemoInvoices() {
+  const enc = new TextEncoder();
+
+  const makeDemoXml = ({ no, date, seller, sTax, buyer, bTax, items, exTax, tax, total }) =>
+    '<?xml version="1.0" encoding="UTF-8"?>\n'
+    + '<EInvoice><Header><EIid>' + no + '</EIid><EInvoiceTag>SWEI</EInvoiceTag><Version>0.1</Version></Header>'
+    + '<EInvoiceData>'
+    + '<SellerInformation><SellerIdNum>' + sTax + '</SellerIdNum><SellerName>' + xmlEsc(seller) + '</SellerName></SellerInformation>'
+    + '<BuyerInformation><BuyerIdNum>' + bTax + '</BuyerIdNum><BuyerName>' + xmlEsc(buyer) + '</BuyerName></BuyerInformation>'
+    + '<BasicInformation><TotalAmWithoutTax>' + exTax + '</TotalAmWithoutTax><TotalTaxAm>' + tax + '</TotalTaxAm><TotalTax-includedAmount>' + total + '</TotalTax-includedAmount></BasicInformation>'
+    + items.map(it => '<IssuItemInformation><ItemName>' + xmlEsc(it) + '</ItemName></IssuItemInformation>').join('')
+    + '</EInvoiceData>'
+    + '<TaxSupervisionInfo><InvoiceNumber>' + no + '</InvoiceNumber><IssueTime>' + date + '</IssueTime></TaxSupervisionInfo>'
+    + '</EInvoice>';
+
+  const xml1Str = makeDemoXml({
+    no: '26312000000881234567',
+    date: '2026-10-12',
+    seller: '上海星辰云计算有限公司',
+    sTax: '91310115MA1K4CLOUD1',
+    buyer: '北京轻表科技有限公司',
+    bTax: '91110108MA01QBTECH9',
+    items: ['*信息技术服务*云服务器托管费', '*信息技术服务*对象存储流量包'],
+    exTax: '1200.00', tax: '72.00', total: '1272.00'
+  });
+
+  const xml2Str = makeDemoXml({
+    no: '26112000000992345678',
+    date: '2026-10-15',
+    seller: '北京京华商旅酒店管理有限公司',
+    sTax: '91110105MA00HOTEL88',
+    buyer: '北京轻表科技有限公司',
+    bTax: '91110108MA01QBTECH9',
+    items: ['*住宿服务*差旅标准间住宿费'],
+    exTax: '640.00', tax: '38.40', total: '678.40'
+  });
+
+  // 示例 3：构造标准 OFD 压缩包（内嵌 Attachs/original_invoice.xml）
+  const ofdAttachXml = makeDemoXml({
+    no: '26442000000773456789',
+    date: '2026-10-18',
+    seller: '深圳顺途速运物流有限公司',
+    sTax: '91440300MA5DLOGIS66',
+    buyer: '北京轻表科技有限公司',
+    bTax: '91110108MA01QBTECH9',
+    items: ['*物流辅助服务*商务文件特快专递'],
+    exTax: '150.00', tax: '9.00', total: '159.00'
+  });
+  const ofdRootXml = '<?xml version="1.0" encoding="UTF-8"?><ofd:OFD xmlns:ofd="http://www.ofdspec.org/2016" Version="1.1"><ofd:DocBody><ofd:DocInfo><ofd:DocID>DEMO-OFD-001</ofd:DocID></ofd:DocInfo></ofd:DocBody></ofd:OFD>';
+  const ofdBlob = makeBinaryZip([
+    ['OFD.xml', ofdRootXml],
+    ['Doc_0/Attachs/original_invoice.xml', ofdAttachXml]
+  ], 'application/octet-stream');
+  const ofdBuf = await ofdBlob.arrayBuffer();
+
+  // 示例 4：与示例 1 同发票号的重复报销票（直观展示重复标红与去重差额 0.00）
+  const xmlDupBuf = enc.encode(xml1Str).buffer;
+
+  state.records = [];
+  const demoFiles = [
+    { name: '示例1_云服务费_国标数电.xml', buf: enc.encode(xml1Str).buffer },
+    { name: '示例2_差旅住宿_国标数电.xml', buf: enc.encode(xml2Str).buffer },
+    { name: '示例3_快递费_内嵌XML标准版.ofd', buf: ofdBuf },
+    { name: '示例4_重复报销测试_云服务费副本.xml', buf: xmlDupBuf }
+  ];
+  for (const df of demoFiles) {
+    const rec = await parseInvoiceFile(df.name, df.buf);
+    state.records.push(rec);
+  }
+  state.filter = 'ALL';
+  state.search = '';
+  document.getElementById('searchBox').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.querySelectorAll('#filterTabs .ftab').forEach(b => b.classList.toggle('active', b.dataset.f === 'ALL'));
+  recomputeAll();
+}
+
+/* ============================================================================
+ * 拖放/文件选择批量处理 + 事件绑定
+ * ============================================================================ */
+async function handleIncomingFiles(fileList) {
+  const files = Array.from(fileList || []);
+  if (!files.length) return;
+  const stEl = document.getElementById('mainStatus');
+  stEl.className = 'msg-bar';
+  stEl.textContent = '正在本地解析 ' + files.length + ' 份文件...';
+
+  for (const f of files) {
+    try {
+      const buf = await f.arrayBuffer();
+      const rec = await parseInvoiceFile(f.name, buf);
+      state.records.push(rec);
+    } catch (err) {
+      state.records.push({
+        id: 'inv_' + (++state.seq),
+        ok: false,
+        originalName: f.name,
+        ext: '',
+        rawBytes: new Uint8Array(0),
+        sourceKind: 'BLOCKED_CORRUPT',
+        statusLabel: '损坏或无效文件',
+        errorReason: '读取文件失败：' + (err && err.message ? err.message : '未知错误'),
+        invoiceNo: '', issueDate: '', sellerName: '', sellerTaxId: '',
+        buyerName: '', buyerTaxId: '', itemSummary: '', itemCount: 0,
+        exTaxCents: 0, taxCents: 0, totalCents: 0, isDup: false, dupRole: ''
+      });
+    }
+  }
+  recomputeAll();
+}
+
+function initInvoiceApp() {
+  // 浏览器兼容性检测
+  if (typeof DecompressionStream === 'undefined') {
+    document.getElementById('compatBanner').style.display = 'block';
+  }
+
+  // 拖放区与文件选择
+  const drop = document.getElementById('dropZone');
+  const inp = document.getElementById('fileInput');
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.classList.remove('over');
+    if (e.dataTransfer && e.dataTransfer.files) handleIncomingFiles(e.dataTransfer.files);
+  });
+  inp.addEventListener('change', async () => {
+    if (inp.files && inp.files.length) {
+      await handleIncomingFiles(inp.files);
+      inp.value = '';
+    }
+  });
+
+  // 重命名配置变更 -> 即时重算重命名预览
+  ['rnDate', 'rnTotal', 'rnSeller', 'rnNo', 'rnItem', 'rnBuyer', 'rnSep', 'rnSkipDup'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => recomputeAll());
+  });
+
+  // 示例与清空按钮
+  document.getElementById('demoBtn').addEventListener('click', () => loadDemoInvoices());
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    state.records = [];
+    recomputeAll();
+  });
+
+  // 一键移除被拦截异常文件
+  document.getElementById('clearBlockedBtn').addEventListener('click', () => {
+    state.records = state.records.filter(r => r.ok);
+    recomputeAll();
+  });
+
+  // 表格单条移除
+  document.getElementById('invTbody').addEventListener('click', e => {
+    const btn = e.target.closest('[data-del-id]');
+    if (!btn) return;
+    const id = btn.getAttribute('data-del-id');
+    state.records = state.records.filter(r => r.id !== id);
+    recomputeAll();
+  });
+
+  // 筛选标签切换
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.ftab');
+    if (!tab) return;
+    state.filter = tab.dataset.f || 'ALL';
+    document.querySelectorAll('#filterTabs .ftab').forEach(b => b.classList.toggle('active', b === tab));
+    renderUI();
+  });
+
+  // 防抖实时搜索（无多余查询按钮）
+  let searchTimer = null;
+  const searchBox = document.getElementById('searchBox');
+  const searchClear = document.getElementById('searchClear');
+  searchBox.addEventListener('input', () => {
+    searchClear.style.display = searchBox.value ? 'inline-flex' : 'none';
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      state.search = searchBox.value;
+      renderUI();
+    }, 120);
+  });
+  searchClear.addEventListener('click', () => {
+    searchBox.value = '';
+    searchClear.style.display = 'none';
+    state.search = '';
+    renderUI();
+  });
+
+  // 问号气泡 Tooltip 点击开关 + 点击外部收起
+  document.addEventListener('click', e => {
+    const tipBtn = e.target.closest('.tip-btn');
+    if (tipBtn) {
+      e.stopPropagation();
+      const wrap = tipBtn.closest('.tip-wrap');
+      const wasOpen = wrap.classList.contains('open');
+      document.querySelectorAll('.tip-wrap.open').forEach(w => w.classList.remove('open'));
+      if (!wasOpen) wrap.classList.add('open');
+      return;
+    }
+    if (!e.target.closest('.tip-pop')) {
+      document.querySelectorAll('.tip-wrap.open').forEach(w => w.classList.remove('open'));
+    }
+  });
+
+  // 导出按钮
+  const tsStamp = () => {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
+  };
+
+  document.getElementById('exportXlsxBtn').addEventListener('click', () => {
+    const blob = buildInvoiceExcelBlob();
+    downloadBlob(blob, '数电票报销汇总台账_' + tsStamp() + '.xlsx');
+    const stEl = document.getElementById('mainStatus');
+    stEl.className = 'msg-bar ok';
+    stEl.textContent = EXPORT_DONE_MSG;
+  });
+
+  document.getElementById('exportZipBtn').addEventListener('click', () => {
+    const blob = buildRenamedZipBlob();
+    downloadBlob(blob, '数电票规范重命名打包_' + tsStamp() + '.zip');
+    const stEl = document.getElementById('mainStatus');
+    stEl.className = 'msg-bar ok';
+    stEl.textContent = EXPORT_DONE_MSG;
+  });
+
+  document.getElementById('exportCsvBtn').addEventListener('click', () => {
+    const blob = buildInvoiceCsvBlob();
+    downloadBlob(blob, '数电票报销明细_' + tsStamp() + '.csv');
+    const stEl = document.getElementById('mainStatus');
+    stEl.className = 'msg-bar ok';
+    stEl.textContent = EXPORT_DONE_MSG;
+  });
+
+  recomputeAll();
+}
+
+window.__INVOICE_TEST__ = {
+  state,
+  recomputeAll,
+  loadDemoInvoices,
+  buildInvoiceExcelBlob,
+  buildRenamedZipBlob,
+  buildInvoiceCsvBlob,
+  parseInvoiceFile
+};
+
+document.addEventListener('DOMContentLoaded', initInvoiceApp);
+
+</script>
+</body>
+</html>
+
